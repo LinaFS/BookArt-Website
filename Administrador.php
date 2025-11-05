@@ -1,0 +1,313 @@
+<?php
+    session_start();
+    if (!isset($_SESSION["usuario"])&&!isset($permiso_id["1"])){
+        session_destroy();
+        echo"
+        <script>window.location.href='../index.php';</script>
+        ";
+    }
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - BookArt</title>
+    <link rel="stylesheet" href="../CSS/reset.css">
+    <link rel="stylesheet" href="../CSS/adminStyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Martian+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="../JavaScript/logicaAdmin.js"></script>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="../img/Logo.png" alt="BookArt Logo" class="logo">
+            <h2>BookArt</h2>
+        </div>
+
+        <div class="user-info">
+            <div class="user-avatar">
+                <span class="material-symbols-outlined">account_circle</span>
+            </div>
+            <div class="user-details">
+                <p class="user-name"><?php echo $_SESSION['usuario'] ?? 'Admin'; ?></p>
+                <span class="user-role">Administrador</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item" onclick="principal()" id="nav-principal">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Principal</span>
+            </a>
+            <a href="#" class="nav-item" onclick="catalogo()" id="nav-catalogo">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <span>Catálogo</span>
+            </a>
+            <a href="#" class="nav-item" onclick="pedidos()" id="nav-pedidos">
+                <span class="material-symbols-outlined">shopping_bag</span>
+                <span>Pedidos</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-icon-sidebar" title="Configuración">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+            <button class="btn-icon-sidebar" onclick="closeSesion()" title="Cerrar sesión">
+                <span class="material-symbols-outlined">logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- HEADER -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 id="page-title">Panel de Administración</h1>
+            </div>
+            <div class="header-right">
+                <span class="date-time" id="currentDate"></span>
+            </div>
+        </header>
+
+        <!-- PRINCIPAL -->
+        <section class="content-section active" id="principal">
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h2>¡Bienvenido de nuevo! 👋</h2>
+                    <p>Gestiona tu tienda de forma eficiente desde este panel de control.</p>
+                </div>
+                <div class="welcome-illustration">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon productos">
+                        <span class="material-symbols-outlined">inventory</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalProductos">0</h3>
+                        <p>Productos</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon pedidos">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3>0</h3>
+                        <p>Pedidos Activos</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon usuarios">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3>0</h3>
+                        <p>Clientes</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon ventas">
+                        <span class="material-symbols-outlined">trending_up</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3>$0.00</h3>
+                        <p>Ventas del Mes</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h3>Acciones Rápidas</h3>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="catalogo(); setTimeout(abrirModalAgregar, 100)">
+                        <span class="material-symbols-outlined">add_circle</span>
+                        <span>Agregar Producto</span>
+                    </button>
+                    <button class="action-btn" onclick="pedidos()">
+                        <span class="material-symbols-outlined">list_alt</span>
+                        <span>Ver Pedidos</span>
+                    </button>
+                    <button class="action-btn" onclick="catalogo()">
+                        <span class="material-symbols-outlined">visibility</span>
+                        <span>Ver Catálogo</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CATÁLOGO -->
+        <section class="content-section" id="catalogo">
+            <div class="section-header">
+                <div class="section-title">
+                    <p>Administra los productos de tu tienda</p>
+                </div>
+                <button class="btn-primary" onclick="abrirModalAgregar()">
+                    <span class="material-symbols-outlined">add</span>
+                    Nuevo Producto
+                </button>
+            </div>
+
+            <div class="tabla-card">
+                <div class="tabla-header">
+                    <div class="search-box">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" id="buscarProducto" placeholder="Buscar producto..." onkeyup="filtrarTabla()">
+                    </div>
+                </div>
+
+                <div class="tabla-wrapper">
+                    <table id="tablaCatalogo">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Precio</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="spinner"></div>
+                                    Cargando productos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PEDIDOS -->
+        <section class="content-section" id="pedidos">
+            <div class="section-header">
+                <div class="section-title">
+                    <p>Administra los pedidos de tus clientes</p>
+                </div>
+            </div>
+
+            <div class="pedidos-grid">
+                <div class="pedido-card">
+                    <div class="pedido-icon">
+                        <span class="material-symbols-outlined">edit_note</span>
+                    </div>
+                    <h3>Pedidos Personalizados</h3>
+                    <p>Gestiona las solicitudes personalizadas de tus clientes</p>
+                    <button class="btn-secondary">Ver Pedidos</button>
+                </div>
+
+                <div class="pedido-card">
+                    <div class="pedido-icon">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                    </div>
+                    <h3>Pedidos del Catálogo</h3>
+                    <p>Administra los pedidos de productos del catálogo</p>
+                    <button class="btn-secondary">Ver Pedidos</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODALS -->
+    <!-- Modal Producto -->
+    <dialog id="modalProducto" class="modal-producto">
+        <div class="modal-header">
+            <h2 id="modalTitulo">Agregar Producto</h2>
+            <button class="btn-cerrar" onclick="cerrarModal()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <form id="formProducto" enctype="multipart/form-data">
+            <input type="hidden" id="productoId" name="id_producto">
+            
+            <div class="form-group">
+                <label for="nombreProducto">
+                    <span class="material-symbols-outlined">label</span>
+                    Nombre del producto
+                </label>
+                <input type="text" id="nombreProducto" name="nombre" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descripcionProducto">
+                    <span class="material-symbols-outlined">description</span>
+                    Descripción
+                </label>
+                <textarea id="descripcionProducto" name="descripcion" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="precioProducto">
+                    <span class="material-symbols-outlined">attach_money</span>
+                    Precio
+                </label>
+                <input type="number" id="precioProducto" name="precio" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label for="imagenProducto">
+                    <span class="material-symbols-outlined">image</span>
+                    Imagen del producto
+                </label>
+                <div class="file-upload">
+                    <input type="file" id="imagenProducto" name="imagen" accept="image/*" onchange="previsualizarImagen(event)">
+                    <div id="preview" class="preview-container"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="btn-guardar">
+                    <span class="material-symbols-outlined">save</span>
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Modal Confirmación -->
+    <dialog id="modalConfirmar" class="modal-confirmar">
+        <span class="material-symbols-outlined warning-icon">warning</span>
+        <h2>¿Estás seguro?</h2>
+        <p id="mensajeConfirmar">Esta acción no se puede deshacer.</p>
+        <div class="modal-footer">
+            <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>
+            <button class="btn-eliminar" onclick="confirmarAccion()">Eliminar</button>
+        </div>
+    </dialog>
+
+    <!-- Modal Alerta -->
+    <dialog id="warning">
+        <p id="mensaje"></p>
+        <div class="btnModal">
+            <button id="btnAcept">Aceptar</button>
+        </div>
+    </dialog>
+
+    <script>
+        // Actualizar fecha y hora
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('es-ES', options);
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+    </script>
+</body>
+</html>

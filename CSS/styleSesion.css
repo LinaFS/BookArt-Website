@@ -1,0 +1,649 @@
+body{
+    background-image: url(../img/pantalla.png);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    font-family: "Roboto", sans-serif;
+}
+
+/*PANTALLAS DE SESIÓN*/
+
+/*PANTALLA POR DEFECTO*/
+
+#modal::backdrop{
+    background-color: black;
+    opacity: 55%;
+}
+
+.iniciarSesion{
+    width: 1100px;
+    height: 600px;
+    border-style: none;
+    border-radius: 15px;
+}
+
+.Sesion{
+    float: left;
+    margin: 2em;
+    padding-left: 6em; 
+}
+
+.Sesion h1,.inicioSesion h1{
+    font-size: 30px;
+    text-align: center;
+    margin-top: 3em;
+}
+
+.Sesion p{
+    text-align: center;
+}
+
+.pSesion{
+    margin-top: 2em;
+    margin-bottom: 5em;
+    color: green;
+}
+
+.pSesion:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.pLeyenda{
+    margin-top: 2em;
+    margin-bottom: 5em;
+    color: green;
+}
+
+.condiciones{
+    color: #A6A6A6;
+}
+
+.Sesion button{
+    display: block;
+    text-align: center;
+    width: 80%;
+    height: 40px;
+    margin-top: 2em;
+    margin-left: 3em;
+    background-color: #EDEAEA;
+    border-style: none;
+    font-family: 'Inclusive Sans', sans-serif;
+}
+
+.Sesion button:hover{
+    cursor: pointer;
+    background-color: #CDC9C9;
+}
+
+.imgP{
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-radius: 15px;
+    height: 632px;
+}
+
+.imgSesion span{/*Tache*/
+    position: absolute;
+    right: 0;
+    margin-right: 1.5em;
+    margin-top: 1em;
+    top: 0;
+    z-index: 1;
+    width: 20px;
+    color: #534340;
+    cursor: pointer;
+}
+
+.tache:hover{
+    cursor: pointer;
+}
+
+/*INICIO DE SESIÓN*/
+
+.inicioSesion{
+    float: left;
+    padding-left: 6em;
+    width: 45%;
+    display: none;
+}
+
+.inicioSesion h1{
+    margin-bottom: 1.5em;
+}
+
+.ingresaUsuario,.ingresaContra{
+    margin-bottom: 5px;
+}
+
+.ingresaContra{
+    margin-top: 3em;
+}
+
+#imgVerContrasena{
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    margin-right: 22em;
+    margin-top: .5em;
+    color: green;
+    cursor: pointer;
+}
+
+.inicioSesion input{
+    font-family: 'Inclusive Sans', sans-serif;
+    color: black;
+    background-color: #EDEAEA;
+    border-style: none;
+    width:100%;
+    height:40px;
+    margin-top: 5px;
+    font-size: 20px;
+    position: relative;
+}
+
+.olvidaContra{
+    margin-top: 5px;
+    text-align: center;
+    color: green;
+    margin-bottom: 3em;
+    z-index:1;
+}
+
+.olvidaContra:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.ISbtn{
+    display: block;
+    text-align: center;
+    width: 40%;
+    height: 40px;
+    margin-bottom: 1.5em;
+    margin-left: 11em;
+    background-color: green;
+    border-style: none;
+    font-family: 'Inclusive Sans', sans-serif;
+    border-radius: 15px;
+}
+
+.ISbtn:hover{
+    cursor: pointer;
+}
+
+.faltaCuenta{
+    left: 0;
+    display: inline;
+    padding-left:17%;
+}
+
+.creaCuentaDesdeInicio{
+    right: 0;
+    display: inline;
+    padding-left: 2em;
+    color: green;
+}
+
+.creaCuentaDesdeInicio:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/*CREAR UNA CUENTA*/
+
+.crearCuenta{
+    width: 60%;
+    padding-left: 1em;
+    display: none;
+}
+
+.crearCuenta p{
+    margin-bottom: 5px;
+}
+
+.crearCuenta h1{
+    margin-top: .5em;
+    margin-bottom: 1.5em;
+    font-size: 30px;
+    text-align: center;
+    font-weight: bolder;
+}
+
+.crearCuenta input,.crearCuenta select{
+    font-family: 'Inclusive Sans', sans-serif;
+    color: black;
+    background-color: #EDEAEA;
+    border-style: none;
+    height:30px;
+    font-size: 15px;
+}
+
+.crearCuenta button{
+    font-family: 'Inclusive Sans', sans-serif;
+    width: 35%;
+    border-radius: 10px;
+    height: 35px;
+    border: none;
+    background-color: green;
+    font-size: 15px;
+    margin-top: 1.5em;
+}
+
+.crearCuenta button:hover{
+    cursor: pointer;
+    background-color: green;
+}
+
+.verCuenta p{
+    margin-top: 1em;
+    margin-right: 1em;
+    display: inline-block;
+}
+
+.cambiarInicio{
+    color: green;
+    cursor: pointer;
+}
+
+.cambiarInicio:hover{
+    text-decoration: underline;
+}
+
+.tituloFechaN{
+    margin-top: 2em;
+    padding-bottom:1em;
+    text-align: center;
+}
+
+.cNombre,.cApellidoP,.cApellidoM,.cUsuario,.cTelefono,.cDia,.cMes,.cAño,.cCorreo,.cContraseña,.cCContraseña{
+    position: relative;
+    display: inline-block;
+    width: fit-content;
+}
+
+
+.cNombre input,.cApellidoM input,.cApellidoP input{
+    width: 96%;
+    margin-right: 1.6em;
+}
+
+.cUsuario,.cTelefono,.cContraseña,.cCContraseña{
+    margin-top: 1.5em;
+}
+
+.cUsuario input,.cTelefono input,.cContraseña input,.cCContraseña input{
+    width: 310px;
+    margin-right: .4em;
+}
+
+.cDia select,.cMes select{
+    width: 205px;
+    margin-right: .4em;
+}
+
+.cDia select option,.cMes select option{
+    font-size: 12px;
+}
+
+.cAño input{
+    width: 200px;
+}
+
+.cCorreo {
+    width: 96%;
+    margin-top: 1em;
+}
+
+.cCorreo input{
+    width: 100%;
+}
+
+.crearCuenta span{
+    width: 25px;
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    margin-right: .5em;
+    margin-top: .2em;
+    cursor: pointer;
+    color: green;
+}
+
+.botonCrearCuenta{
+    text-align: center;
+}
+
+/*RECUPERACIÓN DE CONTRASEÑA*/
+
+.recuperacion{
+    width: 55%;
+    padding: 3em;
+    margin-top: 3.5em;
+    display: none;
+}
+
+.recuperacion h1{
+    margin-top: .5em;
+    margin-bottom: 1.5em;
+    font-size: 30px;
+    text-align: center;
+    font-weight: bolder;
+}
+
+.recuperacion p{
+    margin-top: 1em;
+}
+
+.contentR{
+    margin-top: 5em;
+}
+
+.contentR input{
+    font-family: 'Inclusive Sans', sans-serif;
+    color: black;
+    background-color: #EDEAEA;
+    border-style: none;
+    width:95%;
+    height:40px;
+    margin-top: 5px;
+    font-size: 20px;
+}
+
+.recuperacion button{
+    font-family: 'Inclusive Sans', sans-serif;
+    width: 35%;
+    border-radius: 10px;
+    height: 35px;
+    border: none;
+    background-color: green;
+    font-size: 15px;
+    margin-top: 1.5em;
+}
+
+.recuperacion button:hover{
+    cursor: pointer;
+    background-color: green;
+}
+
+.btnReestablecer{
+    margin-top: 2em;
+    text-align: center;
+}
+
+.recuperacion span{
+    width: 25px;
+    position: absolute;
+    z-index: 1;
+    margin-bottom:4em;
+    margin-top: .7em;
+    margin-left: 22.5em;
+    cursor: pointer;
+    color: green;
+}
+
+/*VALIDACIONES SESIÓN*/
+
+.etiquetaUsuario,.etiquetaContra,.etiquetaContra2,.etiquetaCorreo,.etiquetaCoincidenciaC,.etiquetaTel,.etiquetaPaterno,.etiquetaMaterno,.etiquetaNombre,.etiquetaError,.etiquetaAño{
+        
+    color:green;
+    font-size: small;
+    position: absolute;
+    z-index: 1;
+    margin-left: .5em;
+    visibility: hidden;
+}
+
+.etiquetaCoincidenciaC{
+    margin-top: 2em;
+}
+
+/*RESPONSIVE PARA CELULARES*/
+
+@media screen and (max-width: 480px) {
+    .iniciarSesion{
+        width: 95%;
+        height: 90%;
+    }
+    
+    .Sesion{
+        float:inline-start;
+        margin: 6em 0;
+        padding: 0;
+    }
+    
+    .imgP{
+        display: none;
+    }
+
+    .Sesion h1,.inicioSesion h1{
+        font-size: 25px;
+        text-align: center;
+        margin-top: 0em;
+        font-weight: bolder;
+    }
+    
+    .Sesion p{
+        text-align: center;
+    }
+    
+    .pSesion{
+        margin-top: 2em;
+        margin-bottom: 5em;
+        color: green
+    }
+
+    .crearCuenta{
+        width: 100%;
+        padding: 0;
+        display: none;
+    }
+    
+    .crearCuenta p{
+        margin-bottom: 5px;
+    }
+    
+    .crearCuenta h1{
+        margin-top: .5em;
+        margin-bottom: 1.5em;
+        font-size: 30px;
+        text-align: center;
+        font-weight: bolder;
+    }
+    
+    .crearCuenta input,.crearCuenta select{
+        font-family: 'Inclusive Sans', sans-serif;
+        color: black;
+        background-color: #EDEAEA;
+        border-style: none;
+        height:35px;
+        font-size: 15px;
+    }
+    
+    .crearCuenta button{
+        font-family: 'Inclusive Sans', sans-serif;
+        width: 35%;
+        border-radius: 10px;
+        height: 35px;
+        border: none;
+        background-color: green;
+        font-size: 15px;
+        margin-top: 1.5em;
+    }
+    
+    .crearCuenta button:hover{
+        cursor: pointer;
+        background-color: green;
+    }
+    
+    .verCuenta p{
+        margin-top: 1em;
+        margin-right: 1em;
+        display: inline-block;
+    }
+    
+    .cambiarInicio{
+        color: green;
+        cursor: pointer;
+    }
+    
+    .cambiarInicio:hover{
+        text-decoration: underline;
+    }
+    
+    .tituloFechaN{
+        margin-top: 2em;
+        padding-bottom:1em;
+        text-align: center;
+    }
+    
+    .cNombre,.cApellidoP,.cApellidoM,.cUsuario,.cTelefono,.cDia,.cMes,.cAño,.cCorreo,.cContraseña,.cCContraseña{
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    
+    .cNombre input,.cApellidoM input,.cApellidoP input{
+        width: 96%;
+        margin-right: .7em;
+    }
+    
+    .cUsuario,.cTelefono,.cContraseña,.cCContraseña{
+        margin-top: 1.5em;
+    }
+    
+    .cDia select,.cMes select{
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    .cDia select option,.cMes select option{
+        font-size: 12px;
+    }
+    
+    .cAño input{
+        width: 100%;
+    }
+    
+    .cCorreo {
+        width: 100%;
+        margin-top: 1em;
+    }
+    
+    .cCorreo input{
+        width: 100%;
+    }
+
+    .cContraseña input,.cCContraseña input{
+        z-index: -1;
+    }
+    
+    
+    .botonCrearCuenta{
+        text-align: center;
+    }
+    
+    /*RECUPERACIÓN DE CONTRASEÑA*/
+    
+    .recuperacion{
+        width: 100%;
+        padding: 3em 0; 
+        display: none;
+    }
+    
+    .recuperacion h1{
+        margin-top: .5em;
+        margin-bottom: 1.5em;
+        font-family: 'Playfair Display', serif;
+        font-size: 30px;
+        text-align: center;
+        font-weight: bolder;
+    }
+    
+    .recuperacion p{
+        margin-top: 1em;
+    }
+    
+    .contentR{
+        margin-top: 5em;
+    }
+    
+    .contentR input{
+        font-family: 'Inclusive Sans', sans-serif;
+        color: black;
+        background-color: #EDEAEA;
+        border-style: none;
+        width:95%;
+        height:40px;
+        margin-top: 5px;
+        font-size: 20px;
+    }
+    
+    .recuperacion button{
+        width: 80%;
+    }
+    
+    .btnReestablecer{
+        margin-top: 2em;
+        text-align: center;
+    }
+    
+    /*VALIDACIONES SESIÓN*/
+    
+    .etiquetaUsuario,.etiquetaContra,.etiquetaContra2,.etiquetaCorreo,.etiquetaCoincidenciaC,.etiquetaTel,.etiquetaPaterno,.etiquetaMaterno,.etiquetaNombre{
+        color:green;
+        font-size: small;
+        position: absolute;
+        z-index: 1;
+        margin-left: .5em;
+        visibility: hidden;
+    }
+    
+    .etiquetaCoincidenciaC{
+        margin-top: 2em;
+    }
+    
+    /*INICIO DE SESIÓN*/
+
+    .inicioSesion{
+        float: inline-start;
+        padding: 8em 0;
+        width: 100%;
+        display: none;
+    }
+    
+    .inicioSesion h1{
+        margin-bottom: 1.5em;
+    }
+    
+    .ingresaContra{
+        margin-top: 2.5em;
+    }
+    
+    
+    .ISbtn{
+        width: 80%;
+        margin: 1.5em 2em;
+    }
+    
+    .faltaCuenta{
+        left: 0;
+        display: inline;
+        padding:0 1em;
+    }
+    
+    .creaCuentaDesdeInicio{
+        right: 0;
+        display: inline;
+        padding-left: 2em;
+        color: green;
+    }
+    
+    .creaCuentaDesdeInicio:hover{
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    
+
+}
