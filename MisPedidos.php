@@ -15,7 +15,7 @@
     $usuarioId = null;
     $correoUsuario = null;
     
-    $queryId = "SELECT usuario_id, correo FROM cuenta WHERE correo = ? OR usuario = ?";
+    $queryId = "SELECT id_cuenta, correo FROM cuenta WHERE correo = ? OR usuario = ?";
     
     if ($stmt = mysqli_prepare($conexion, $queryId)) {
         mysqli_stmt_bind_param($stmt, "ss", $usuario, $usuario);
@@ -24,7 +24,7 @@
         $usuarioData = mysqli_fetch_assoc($executeQuery);
         
         if ($usuarioData) {
-            $usuarioId = $usuarioData['usuario_id'];
+            $usuarioId = $usuarioData['id_cuenta'];
             $correoUsuario = $usuarioData['correo'];
         }
         mysqli_stmt_close($stmt);
@@ -58,7 +58,7 @@
                     INNER JOIN tipoPedido tp ON p.idTipoPedido = tp.id_tipoPedido
                     LEFT JOIN catalogo c ON p.idCatalogo = c.id_producto AND tp.id_tipoPedido = 1
                     LEFT JOIN personalizada per ON p.idPersonalizada = per.id_personalizada AND tp.id_tipoPedido = 2
-                    WHERE p.IdCuenta = ? AND p.estatus != 'carrito'
+                    WHERE p.idCuenta = ? AND p.estatus != 'carrito'
                     ORDER BY p.fecha DESC, p.hora DESC";
     
     $pedidos = [];

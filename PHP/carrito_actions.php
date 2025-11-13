@@ -140,22 +140,55 @@ function eliminarDelCarrito($conexion) {
 
 // Realizar checkout (cambiar estatus de carrito a pendiente)
 function realizarCheckout($conexion, $usuarioId) {
+    // Verificar que haya productos en el carrito antes de procesar
+    $checkQuery = "SELECT COUNT(*) as total FROM pedidos 
+                   WHERE IdCuenta = '$usuarioId' AND estatus = 'carrito'";
+    $checkResult = mysqli_query($conexion, $checkQuery);
+    
+    if (!$checkResult) {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Error al verificar el carrito: ' . mysqli_error($conexion)
+        ]);
+        return;
+    }
+    
+    $row = mysqli_fetch_assoc($checkResult);
+    if ($row['total'] == 0) {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'No hay productos en el carrito'
+        ]);
+        return;
+    }
+    
     // Actualizar todos los pedidos del usuario que estén en carrito
     $query = "UPDATE pedidos 
-               SET estatus = 'pendiente', fecha = CURDATE(), hora = CURTIME()
-               WHERE id_cuenta = '$usuarioId' AND estatus = 'carrito'";
+              SET estatus = 'pendiente', fecha = CURDATE(), hora = CURTIME()
+              WHERE IdCuenta = '$usuarioId' AND estatus = 'carrito'";
     
     $result = mysqli_query($conexion, $query);
     
-    if ($result && mysqli_affected_rows($conexion) > 0) {
+    if (!$result) {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Error al procesar el pedido: ' . mysqli_error($conexion)
+        ]);
+        return;
+    }
+    
+    $affectedRows = mysqli_affected_rows($conexion);
+    
+    if ($affectedRows > 0) {
         echo json_encode([
             'success' => true, 
-            'message' => 'Pedido realizado con éxito'
+            'message' => 'Pedido realizado con éxito',
+            'pedidos_procesados' => $affectedRows
         ]);
     } else {
         echo json_encode([
             'success' => false, 
-            'message' => 'Error al procesar el pedido o no hay productos en el carrito'
+            'message' => 'No se pudo procesar el pedido. Intenta nuevamente.'
         ]);
     }
 }

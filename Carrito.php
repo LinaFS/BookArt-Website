@@ -352,6 +352,8 @@
         }
 
         function confirmarPedido() {
+            const dialog = document.getElementById('confirmDialog');
+            
             fetch('../PHP/carrito_actions.php', {
                 method: 'POST',
                 headers: {
@@ -359,18 +361,43 @@
                 },
                 body: 'action=checkout'
             })
-            .then(response => response.json())
+            .then(response => {
+                // Verificar si la respuesta es OK
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                dialog.close();
+                
                 if (data.success) {
-                    window.location.href = 'MisPedidos.php?mensaje=' + encodeURIComponent('¡Pedido realizado con éxito! Nos pondremos en contacto contigo pronto.') + '&modal=true';
+                    window.location.href = 'MisPedidos.php?mensaje=' + 
+                        encodeURIComponent('¡Pedido realizado con éxito! Nos pondremos en contacto contigo pronto.') + 
+                        '&modal=true';
                 } else {
-                    alert('Error al procesar el pedido: ' + data.message);
+                    mostrarAlertaPersonalizada('⚠️ ' + (data.message || 'Error al procesar el pedido'), 'error');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error de conexión al realizar el pedido.');
+                console.error('Error completo:', error);
+                dialog.close();
+                mostrarAlertaPersonalizada('❌ Error de conexión. Por favor, intenta nuevamente.', 'error');
             });
+        }
+
+        // Agregar esta función auxiliar
+        function mostrarAlertaPersonalizada(mensaje, tipo) {
+            const warningDialog = document.getElementById('warning');
+            const mensajeElement = document.getElementById('mensaje');
+            
+            if (warningDialog && mensajeElement) {
+                mensajeElement.textContent = mensaje;
+                mensajeElement.className = tipo;
+                warningDialog.showModal();
+            } else {
+                alert(mensaje);
+            }
         }
     </script>
 </body>

@@ -35,6 +35,10 @@ switch($action) {
     case 'cambiar_estatus':
         cambiarEstatus($conexion);
         break;
+
+    case 'estadisticas':  // NUEVO
+        obtenerEstadisticas($conexion);
+        break;
     
     default:
         echo json_encode(['success' => false, 'message' => 'Acción no válida']);
@@ -44,31 +48,34 @@ function listarPedidos($conexion) {
     // Obtener todos los pedidos usando tipoPedido
     $query = "
         SELECT 
-            p.idPedido as id,
+            p.idPedido AS id,
             p.fecha,
             p.hora,
             p.estatus,
-            tp.descripcion as tipo,
+            tp.descripcion AS tipo,
             tp.id_tipoPedido,
             CASE 
                 WHEN tp.id_tipoPedido = 1 THEN c.nombre
                 WHEN tp.id_tipoPedido = 2 THEN 'Libreta Personalizada'
-            END as producto_nombre,
+            END AS producto_nombre,
             CASE 
                 WHEN tp.id_tipoPedido = 1 THEN c.precio
                 WHEN tp.id_tipoPedido = 2 THEN 0
-            END as producto_precio,
-            u.nombre as cliente_nombre,
+            END AS producto_precio,
+            u.nombre AS cliente_nombre,
             u.paterno,
             u.materno,
-            cu.correo as cliente_correo,
-            cu.usuario as cliente_usuario
+            cu.correo AS cliente_correo,
+            cu.usuario AS cliente_usuario
         FROM pedidos p
         INNER JOIN tipoPedido tp ON p.idTipoPedido = tp.id_tipoPedido
         LEFT JOIN catalogo c ON p.idCatalogo = c.id_producto AND tp.id_tipoPedido = 1
         LEFT JOIN personalizada per ON p.idPersonalizada = per.id_personalizada AND tp.id_tipoPedido = 2
-        INNER JOIN usuario u ON p.usuario_id = u.id_usuario
-        INNER JOIN cuenta cu ON u.id_usuario = cu.usuario_id
+        
+        -- UNIONES DEL CLIENTE CORREGIDAS
+        INNER JOIN cuenta cu ON p.idCuenta = cu.id_cuenta 
+        INNER JOIN usuario u ON cu.usuario_id = u.id_usuario 
+        
         WHERE p.estatus != 'carrito'
         ORDER BY p.fecha DESC, p.hora DESC
     ";
@@ -210,5 +217,36 @@ function cambiarEstatus($conexion) {
     } else {
         echo json_encode(['success' => false, 'message' => 'Error al actualizar estatus: ' . mysqli_error($conexion)]);
     }
+}
+
+function obtenerEstadisticas($conexion) {
+    // 1. Contar pedidos activos (excluyendo carrito, entregados y declinados)
+    $queryPedidos = "SELECT COUNT(*) as total FROM pedidos 
+                     WHERE estatus NOT IN ('carrito', 'entregado', 'declinado')";
+    $resultPedidos = mysqli_query($conexion, $queryPedidos);
+    $pedidosActivos = mysqli_fetch_assoc($resultPedidos)['total'] ?? 0;
+    
+    // 2. Contar total de clientes únicos
+    $queryClientes = "SELECT COUNT(DISTINCT id_cuenta) as total FROM cuenta WHERE permiso_id = 2";
+    $resultClientes = mysqli_query($conexion, $queryClientes);
+    $totalClientes = mysqli_fetch_assoc($resultClientes)['total'] ?? 0;
+    
+    // 3. Calcular ventas del mes actual (solo pedidos del catálogo entregados)
+    $queryVentas = "SELECT SUM(c.precio) as total 
+                    FROM pedidos p
+                    INNER JOIN catalogo c ON p.idCatalogo = c.id_producto
+                    WHERE p.idTipoPedido = 1 
+                    AND p.estatus = 'entregado'
+                    AND MONTH(p.fecha) = MONTH(CURDATE())
+                    AND YEAR(p.fecha) = YEAR(CURDATE())";
+    $resultVentas = mysqli_query($conexion, $queryVentas);
+    $ventasMes = mysqli_fetch_assoc($resultVentas)['total'] ?? 0;
+    
+    echo json_encode([
+        'success' => true,
+        'pedidos_activos' => (int)$pedidosActivos,
+        'total_clientes' => (int)$totalClientes,
+        'ventas_mes' => (float)$ventasMes
+    ]);
 }
 ?>

@@ -191,35 +191,7 @@
                 </div>
             </div>
         </section>
-
-        <!-- PEDIDOS -->
-        <section class="content-section" id="pedidos">
-            <div class="section-header">
-                <div class="section-title">
-                    <p>Administra los pedidos de tus clientes</p>
-                </div>
-            </div>
-
-            <div class="pedidos-grid">
-                <div class="pedido-card">
-                    <div class="pedido-icon">
-                        <span class="material-symbols-outlined">edit_note</span>
-                    </div>
-                    <h3>Pedidos Personalizados</h3>
-                    <p>Gestiona las solicitudes personalizadas de tus clientes</p>
-                    <button class="btn-secondary">Ver Pedidos</button>
-                </div>
-
-                <div class="pedido-card">
-                    <div class="pedido-icon">
-                        <span class="material-symbols-outlined">shopping_bag</span>
-                    </div>
-                    <h3>Pedidos del Catálogo</h3>
-                    <p>Administra los pedidos de productos del catálogo</p>
-                    <button class="btn-secondary">Ver Pedidos</button>
-                </div>
-            </div>
-        </section>
+        
         <!-- PEDIDOS -->
         <section class="content-section" id="pedidos">
             <div class="section-header">

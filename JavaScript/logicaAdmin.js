@@ -1,3 +1,12 @@
+// ===== INICIALIZACIÓN AL CARGAR LA PÁGINA =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar principal por defecto
+    principal();
+    
+    // Cargar estadísticas iniciales
+    cargarEstadisticas();
+});
+
 // Actualizar fecha y hora
 function updateDateTime() {
     const now = new Date();
@@ -13,6 +22,44 @@ function principal() {
     document.getElementById('principal').classList.add('active');
     updateActiveNav('nav-principal');
     document.getElementById('page-title').textContent = 'Panel de Administración';
+    
+    // Cargar estadísticas
+    cargarEstadisticas();
+}
+
+// Nueva función para cargar estadísticas
+function cargarEstadisticas() {
+    // 1. Cargar total de productos
+    fetch('../PHP/ajax_catalogo.php?action=listar')
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                document.getElementById('totalProductos').textContent = data.productos.length;
+            }
+        })
+        .catch(error => console.error('Error cargando productos:', error));
+    
+    // 2. Cargar estadísticas de pedidos
+    fetch('../PHP/admin_pedidos.php?action=estadisticas')
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                // Actualizar pedidos activos (pendientes + vistos + aprobados + proceso)
+                const statCards = document.querySelectorAll('.stat-card');
+                statCards.forEach(card => {
+                    const text = card.textContent;
+                    if (text.includes('Pedidos Activos')) {
+                        card.querySelector('.stat-info h3').textContent = data.pedidos_activos || 0;
+                    } else if (text.includes('Clientes')) {
+                        card.querySelector('.stat-info h3').textContent = data.total_clientes || 0;
+                    } else if (text.includes('Ventas del Mes')) {
+                        card.querySelector('.stat-info h3').textContent = 
+                            '$' + (data.ventas_mes ? parseFloat(data.ventas_mes).toFixed(2) : '0.00');
+                    }
+                });
+            }
+        })
+        .catch(error => console.error('Error cargando estadísticas:', error));
 }
 
 function catalogo() {
@@ -28,6 +75,7 @@ function pedidos() {
     document.getElementById('pedidos').classList.add('active');
     updateActiveNav('nav-pedidos');
     document.getElementById('page-title').textContent = 'Gestión de Pedidos';
+    cargarPedidos();
 }
 
 function hideAllSections() {
@@ -258,9 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
-    // Cargar principal por defecto
-    principal();
 });
 
 // ===== SISTEMA DE ALERTAS =====
