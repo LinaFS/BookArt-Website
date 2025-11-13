@@ -165,6 +165,14 @@ function pedidos() {
     document.getElementById('pedidos').classList.add('active');
     updateActiveNav('nav-pedidos');
     document.getElementById('page-title').textContent = 'Gestión de Pedidos';
+    
+    // Establecer filtro en "todos" al cargar la sección
+    const filtroSelect = document.getElementById('filtroEstatus');
+    if (filtroSelect) {
+        filtroSelect.value = 'todos';
+    }
+    filtroActualEstatus = 'todos';
+    
     cargarPedidos();
 }
 
@@ -551,7 +559,7 @@ function mostrarDetallePedido(pedido) {
                 </div>
                 <div class="detalle-item">
                     <span class="detalle-label">Tipo</span>
-                    <span class="detalle-value">${pedido.tipo === 'catalogo' ? '📚 Catálogo' : '🎨 Personalizada'}</span>
+                    <span class="detalle-value">${pedido.tipo === 'catalogo' ? 'Catálogo' : 'Personalizada'}</span>
                 </div>
                 <div class="detalle-item">
                     <span class="detalle-label">Estatus</span>

@@ -228,6 +228,7 @@
                                 <th>Tipo</th>
                                 <th>Producto</th>
                                 <th>Fecha</th>
+                                <th>Precio</th>
                                 <th>Estatus</th>
                                 <th>Acciones</th>
                             </tr>

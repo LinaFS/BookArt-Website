@@ -1015,6 +1015,274 @@ dialog::backdrop {
     object-fit: contain;
 }
 
+/* ===================================
+   MEJORAS PARA TABLA DE PEDIDOS
+   Agregar al final de adminStyle.css
+   =================================== */
+
+/* Mejoras generales para la tabla */
+#tablaPedidos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+#tablaPedidos thead {
+    background: var(--bg-main);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#tablaPedidos th {
+    padding: 1rem 0.8rem;
+    text-align: left;
+    font-weight: bold;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--primary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+#tablaPedidos tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+#tablaPedidos tbody tr:hover {
+    background: var(--bg-main);
+}
+
+#tablaPedidos td {
+    padding: 1rem 0.8rem;
+    vertical-align: middle;
+}
+
+/* Estilos específicos por columna */
+.cliente-info {
+    min-width: 180px;
+    max-width: 220px;
+}
+
+.cliente-correo {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.3rem;
+}
+
+.pedido-tipo-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border: 2px solid var(--marron-texto);
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pedido-tipo-catalogo {
+    background: var(--azul-bookart);
+    color: white;
+}
+
+.pedido-tipo-personalizada {
+    background: var(--amarillo-bookart);
+    color: var(--marron-texto);
+}
+
+.nombre-col {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 150px;
+    max-width: 200px;
+}
+
+.pedido-estatus {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border: 2px solid var(--marron-texto);
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.estatus-pendiente { background: #FFF9C4; color: #827717; }
+.estatus-visto { background: #B3E5FC; color: #01579B; }
+.estatus-aprobado { background: #C8E6C9; color: #1B5E20; }
+.estatus-declinado { background: #FFCDD2; color: #B71C1C; }
+.estatus-proceso { background: #BBDEFB; color: #0D47A1; }
+.estatus-terminado { background: #A5D6A7; color: #2E7D32; }
+.estatus-entregado { background: #E0E0E0; color: #212121; }
+
+.acciones-col {
+    display: flex;
+    gap: 0.4rem;
+    min-width: 140px;
+    flex-wrap: wrap;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-editar {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.btn-editar:hover {
+    background: #1976d2;
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-eliminar {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.btn-eliminar:hover {
+    background: #d32f2f;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Mejora para scroll horizontal si es necesario */
+.tabla-wrapper {
+    overflow-x: auto;
+    max-height: 600px;
+}
+
+@media (max-width: 1400px) {
+    #tablaPedidos {
+        min-width: 1200px;
+    }
+    
+    .tabla-wrapper {
+        box-shadow: inset -10px 0 10px -10px rgba(0,0,0,0.1);
+    }
+}
+
+/* Estados de carga y vacío */
+.loading, .error, .empty {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    border: 3px solid var(--border);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1em;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mejoras para los modales de pedidos */
+.detalle-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px dashed var(--border);
+}
+
+.detalle-section:last-child {
+    border-bottom: none;
+}
+
+.detalle-section h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.detalle-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.detalle-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.detalle-value {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.producto-preview {
+    width: 100%;
+    max-width: 300px;
+    margin: 1rem auto;
+    border: 3px solid var(--border);
+    padding: 1rem;
+    background: var(--bg-main);
+}
+
+.producto-preview img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Estilos para el nuevo modal de precio */
+#modalAsignarPrecio .form-group input[type="number"] {
+    font-size: 1.5rem;
+    text-align: center;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+#modalAsignarPrecio .form-group input[type="number"]:focus {
+    border-color: var(--amarillo-bookart);
+    box-shadow: 0 0 0 4px rgba(251, 210, 22, 0.2);
+}
+
+/* Responsive adicional */
+@media (max-width: 768px) {
+    .detalle-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .acciones-col {
+        flex-direction: column;
+        min-width: auto;
+    }
+    
+    .btn-icon {
+        width: 100%;
+        min-width: 100%;
+    }
+}
+
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
