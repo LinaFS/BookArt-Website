@@ -1,0 +1,214 @@
+<?php
+session_start();
+include("conexionBDD.php");
+
+// Verificar que sea administrador
+if (!isset($_SESSION["usuario"])) {
+    echo json_encode(['success' => false, 'message' => 'Sesión expirada']);
+    exit;
+}
+
+// Verificar permiso de administrador
+$usuario = $_SESSION["usuario"];
+$queryPermiso = "SELECT permiso_id FROM cuenta WHERE correo = '$usuario' OR usuario = '$usuario'";
+$resultPermiso = mysqli_query($conexion, $queryPermiso);
+$permisoData = mysqli_fetch_assoc($resultPermiso);
+
+if ($permisoData['permiso_id'] != 1) {
+    echo json_encode(['success' => false, 'message' => 'No tienes permisos de administrador']);
+    exit;
+}
+
+header('Content-Type: application/json');
+
+$action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : '');
+
+switch($action) {
+    case 'listar':
+        listarPedidos($conexion);
+        break;
+    
+    case 'detalle':
+        obtenerDetallePedido($conexion);
+        break;
+    
+    case 'cambiar_estatus':
+        cambiarEstatus($conexion);
+        break;
+    
+    default:
+        echo json_encode(['success' => false, 'message' => 'Acción no válida']);
+}
+
+function listarPedidos($conexion) {
+    // Obtener todos los pedidos usando tipoPedido
+    $query = "
+        SELECT 
+            p.idPedido as id,
+            p.fecha,
+            p.hora,
+            p.estatus,
+            tp.descripcion as tipo,
+            tp.id_tipoPedido,
+            CASE 
+                WHEN tp.id_tipoPedido = 1 THEN c.nombre
+                WHEN tp.id_tipoPedido = 2 THEN 'Libreta Personalizada'
+            END as producto_nombre,
+            CASE 
+                WHEN tp.id_tipoPedido = 1 THEN c.precio
+                WHEN tp.id_tipoPedido = 2 THEN 0
+            END as producto_precio,
+            u.nombre as cliente_nombre,
+            u.paterno,
+            u.materno,
+            cu.correo as cliente_correo,
+            cu.usuario as cliente_usuario
+        FROM pedidos p
+        INNER JOIN tipoPedido tp ON p.idTipoPedido = tp.id_tipoPedido
+        LEFT JOIN catalogo c ON p.idCatalogo = c.id_producto AND tp.id_tipoPedido = 1
+        LEFT JOIN personalizada per ON p.idPersonalizada = per.id_personalizada AND tp.id_tipoPedido = 2
+        INNER JOIN usuario u ON p.usuario_id = u.id_usuario
+        INNER JOIN cuenta cu ON u.id_usuario = cu.usuario_id
+        WHERE p.estatus != 'carrito'
+        ORDER BY p.fecha DESC, p.hora DESC
+    ";
+    
+    $result = mysqli_query($conexion, $query);
+    
+    if($result) {
+        $pedidos = [];
+        while($row = mysqli_fetch_assoc($result)) {
+            $pedidos[] = $row;
+        }
+        echo json_encode(['success' => true, 'pedidos' => $pedidos]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error al consultar pedidos: ' . mysqli_error($conexion)]);
+    }
+}
+
+function obtenerDetallePedido($conexion) {
+    $id = mysqli_real_escape_string($conexion, $_GET['id']);
+    
+    $query = "
+        SELECT 
+            p.*,
+            tp.descripcion as tipo_descripcion,
+            tp.id_tipoPedido,
+            CASE 
+                WHEN tp.id_tipoPedido = 1 THEN c.nombre
+                WHEN tp.id_tipoPedido = 2 THEN 'Libreta Personalizada'
+            END as producto_nombre,
+            CASE 
+                WHEN tp.id_tipoPedido = 1 THEN c.precio
+                WHEN tp.id_tipoPedido = 2 THEN 0
+            END as producto_precio,
+            CASE 
+                WHEN tp.id_tipoPedido = 1 THEN c.descripcion
+                WHEN tp.id_tipoPedido = 2 THEN per.descripcion
+            END as producto_descripcion,
+            CASE 
+                WHEN tp.id_tipoPedido = 1 THEN c.img
+                WHEN tp.id_tipoPedido = 2 THEN per.portada
+            END as producto_img,
+            per.color,
+            per.tam,
+            per.tipo_encuadernacion,
+            per.tipo_papel,
+            u.nombre as cliente_nombre,
+            u.paterno as cliente_paterno,
+            u.materno as cliente_materno,
+            u.tel as cliente_tel,
+            cu.correo as cliente_correo,
+            cu.usuario as cliente_usuario
+        FROM pedidos p
+        INNER JOIN tipoPedido tp ON p.idTipoPedido = tp.id_tipoPedido
+        LEFT JOIN catalogo c ON p.idCatalogo = c.id_producto AND tp.id_tipoPedido = 1
+        LEFT JOIN personalizada per ON p.idPersonalizada = per.id_personalizada AND tp.id_tipoPedido = 2
+        INNER JOIN usuario u ON p.usuario_id = u.id_usuario
+        INNER JOIN cuenta cu ON u.id_usuario = cu.usuario_id
+        WHERE p.idPedido = '$id'
+    ";
+    
+    $result = mysqli_query($conexion, $query);
+    
+    if($result && mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $isCatalogo = ($row['id_tipoPedido'] == 1);
+        
+        $pedido = [
+            'id' => $row['idPedido'],
+            'fecha' => $row['fecha'],
+            'hora' => $row['hora'],
+            'estatus' => $row['estatus'],
+            'tipo' => $isCatalogo ? 'catalogo' : 'personalizada',
+            'cliente' => [
+                'nombre' => $row['cliente_nombre'],
+                'paterno' => $row['cliente_paterno'],
+                'materno' => $row['cliente_materno'],
+                'tel' => $row['cliente_tel'],
+                'correo' => $row['cliente_correo'],
+                'usuario' => $row['cliente_usuario']
+            ],
+            'producto' => [
+                'nombre' => $row['producto_nombre'],
+                'precio' => $row['producto_precio'],
+                'descripcion' => $row['producto_descripcion'],
+                'img' => $row['producto_img']
+            ]
+        ];
+        
+        // Agregar datos adicionales si es personalizada
+        if (!$isCatalogo) {
+            $pedido['producto']['color'] = $row['color'];
+            $pedido['producto']['tam'] = $row['tam'];
+            $pedido['producto']['tipo_encuadernacion'] = $row['tipo_encuadernacion'];
+            $pedido['producto']['tipo_papel'] = $row['tipo_papel'];
+            $pedido['producto']['portada'] = $row['producto_img'];
+        }
+        
+        echo json_encode(['success' => true, 'pedido' => $pedido]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Pedido no encontrado']);
+    }
+}
+
+function cambiarEstatus($conexion) {
+    $id = mysqli_real_escape_string($conexion, $_POST['pedidoId']);
+    $nuevoEstatus = mysqli_real_escape_string($conexion, $_POST['estatus']);
+    $mensaje = isset($_POST['mensaje']) ? mysqli_real_escape_string($conexion, $_POST['mensaje']) : '';
+    
+    // Validar estatus
+    $estatusValidos = ['pendiente', 'visto', 'aprobado', 'declinado', 'proceso', 'terminado', 'entregado'];
+    if(!in_array($nuevoEstatus, $estatusValidos)) {
+        echo json_encode(['success' => false, 'message' => 'Estatus no válido']);
+        return;
+    }
+    
+    // Actualizar en la tabla pedidos (única tabla ahora)
+    $query = "UPDATE pedidos SET estatus = '$nuevoEstatus' WHERE idPedido = '$id'";
+    
+    $result = mysqli_query($conexion, $query);
+    
+    if($result) {
+        // TODO: Aquí podrías enviar un email al cliente notificando el cambio de estatus
+        
+        $estatusTexto = '';
+        switch($nuevoEstatus) {
+            case 'pendiente': $estatusTexto = 'Pendiente'; break;
+            case 'visto': $estatusTexto = 'Visto'; break;
+            case 'aprobado': $estatusTexto = 'Aprobado'; break;
+            case 'declinado': $estatusTexto = 'Declinado'; break;
+            case 'proceso': $estatusTexto = 'En Proceso'; break;
+            case 'terminado': $estatusTexto = 'Terminado'; break;
+            case 'entregado': $estatusTexto = 'Entregado'; break;
+        }
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Estatus actualizado a: ' . $estatusTexto
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error al actualizar estatus: ' . mysqli_error($conexion)]);
+    }
+}
+?>

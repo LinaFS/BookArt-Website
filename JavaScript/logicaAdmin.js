@@ -1,3 +1,12 @@
+// Actualizar fecha y hora
+function updateDateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('es-ES', options);
+}
+updateDateTime();
+setInterval(updateDateTime, 60000);
+
 // ===== NAVEGACIÓN ENTRE SECCIONES =====
 function principal() {
     hideAllSections();
@@ -278,6 +287,336 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ===== AGREGAR ESTAS FUNCIONES AL FINAL DE logicaAdmin.js =====
+
+// ===== GESTIÓN DE PEDIDOS =====
+let pedidosData = [];
+let filtroActualEstatus = 'pendiente';
+
+function cargarPedidos() {
+    const tbody = document.getElementById('tablaPedidosBody');
+    tbody.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando pedidos...</td></tr>';
+    
+    fetch('../PHP/admin_pedidos.php?action=listar')
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                pedidosData = data.pedidos;
+                mostrarPedidos(pedidosData);
+                actualizarContadorPedidos(pedidosData);
+            } else {
+                tbody.innerHTML = '<tr><td colspan="7" class="error">Error al cargar pedidos: ' + data.message + '</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tbody.innerHTML = '<tr><td colspan="7" class="error">Error de conexión</td></tr>';
+        });
+}
+
+function mostrarPedidos(pedidos) {
+    const tbody = document.getElementById('tablaPedidosBody');
+    
+    // Filtrar por estatus si hay filtro activo
+    const filtro = document.getElementById('filtroEstatus').value;
+    if (filtro !== 'todos') {
+        pedidos = pedidos.filter(p => p.estatus.toLowerCase() === filtro);
+    }
+    
+    if(pedidos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">No hay pedidos con este estatus</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = pedidos.map(pedido => {
+        const estatusClass = 'estatus-' + pedido.estatus.toLowerCase();
+        const isCatalogo = (pedido.id_tipoPedido == 1);
+        const tipoClass = isCatalogo ? 'pedido-tipo-catalogo' : 'pedido-tipo-personalizada';
+        const tipoTexto = isCatalogo ? '📚 Catálogo' : '🎨 Personalizada';
+        
+        let estatusIcon = '';
+        switch(pedido.estatus.toLowerCase()) {
+            case 'pendiente': estatusIcon = '⏳'; break;
+            case 'visto': estatusIcon = '👀'; break;
+            case 'aprobado': estatusIcon = '✅'; break;
+            case 'declinado': estatusIcon = '❌'; break;
+            case 'proceso': estatusIcon = '🔨'; break;
+            case 'terminado': estatusIcon = '🎉'; break;
+            case 'entregado': estatusIcon = '📦'; break;
+        }
+        
+        return `
+        <tr data-id="${pedido.id}">
+            <td><strong>#${String(pedido.id).padStart(5, '0')}</strong></td>
+            <td>
+                <div class="cliente-info">
+                    ${pedido.cliente_nombre}
+                    <span class="cliente-correo">${pedido.cliente_correo}</span>
+                </div>
+            </td>
+            <td>
+                <span class="pedido-tipo-badge ${tipoClass}">
+                    ${tipoTexto}
+                </span>
+            </td>
+            <td class="nombre-col">${pedido.producto_nombre}</td>
+            <td>
+                ${pedido.fecha}<br>
+                <small style="color: var(--text-secondary);">${pedido.hora}</small>
+            </td>
+            <td>
+                <span class="pedido-estatus ${estatusClass}">
+                    ${estatusIcon} ${pedido.estatus}
+                </span>
+            </td>
+            <td class="acciones-col">
+                <button class="btn-icon btn-editar" onclick="verDetallePedido('${pedido.id}')" title="Ver detalle">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <button class="btn-icon" onclick="cambiarEstatus('${pedido.id}', '${pedido.estatus}')" 
+                        title="Cambiar estatus"
+                        style="background: #e3f2fd; color: #1976d2;">
+                    <span class="material-symbols-outlined">sync_alt</span>
+                </button>
+            </td>
+        </tr>
+        `;
+    }).join('');
+}
+
+function filtrarPedidos() {
+    filtroActualEstatus = document.getElementById('filtroEstatus').value;
+    mostrarPedidos(pedidosData);
+}
+
+function buscarEnPedidos() {
+    const filtro = document.getElementById('buscarPedido').value.toLowerCase();
+    const filas = document.querySelectorAll('#tablaPedidosBody tr');
+    
+    filas.forEach(fila => {
+        const texto = fila.textContent.toLowerCase();
+        fila.style.display = texto.includes(filtro) ? '' : 'none';
+    });
+}
+
+function verDetallePedido(id) {
+    fetch(`../PHP/admin_pedidos.php?action=detalle&id=${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                mostrarDetallePedido(data.pedido);
+            } else {
+                mostrarAlerta('Error al cargar detalle del pedido', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error de conexión', 'error');
+        });
+}
+
+function mostrarDetallePedido(pedido) {
+    const modal = document.getElementById('modalDetallePedido');
+    const content = document.getElementById('detallePedidoContent');
+    
+    document.getElementById('modalPedidoTitulo').textContent = 
+        `Pedido #${String(pedido.id).padStart(5, '0')} - ${pedido.tipo === 'catalogo' ? 'Catálogo' : 'Personalizada'}`;
+    
+    let detalleHTML = `
+        <div class="detalle-section">
+            <h3>📋 Información del Pedido</h3>
+            <div class="detalle-grid">
+                <div class="detalle-item">
+                    <span class="detalle-label">ID del Pedido</span>
+                    <span class="detalle-value">#${String(pedido.id).padStart(5, '0')}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Fecha</span>
+                    <span class="detalle-value">${pedido.fecha} ${pedido.hora}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Tipo</span>
+                    <span class="detalle-value">${pedido.tipo === 'catalogo' ? '📚 Catálogo' : '🎨 Personalizada'}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Estatus</span>
+                    <span class="detalle-value pedido-estatus estatus-${pedido.estatus.toLowerCase()}">
+                        ${pedido.estatus}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detalle-section">
+            <h3>👤 Información del Cliente</h3>
+            <div class="detalle-grid">
+                <div class="detalle-item">
+                    <span class="detalle-label">Nombre</span>
+                    <span class="detalle-value">${pedido.cliente.nombre} ${pedido.cliente.paterno} ${pedido.cliente.materno}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Correo</span>
+                    <span class="detalle-value">${pedido.cliente.correo}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Teléfono</span>
+                    <span class="detalle-value">${pedido.cliente.tel}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Usuario</span>
+                    <span class="detalle-value">${pedido.cliente.usuario}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detalle-section">
+            <h3>📦 Detalles del Producto</h3>
+    `;
+    
+    if (pedido.tipo === 'catalogo') {
+        detalleHTML += `
+            <div class="producto-preview">
+                <img src="${pedido.producto.img}" alt="${pedido.producto.nombre}">
+            </div>
+            <div class="detalle-grid">
+                <div class="detalle-item">
+                    <span class="detalle-label">Nombre</span>
+                    <span class="detalle-value">${pedido.producto.nombre}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Precio</span>
+                    <span class="detalle-value" style="color: var(--primary); font-weight: bold; font-size: 1.5rem;">
+                        $${parseFloat(pedido.producto.precio).toFixed(2)}
+                    </span>
+                </div>
+            </div>
+            <div class="detalle-item" style="margin-top: 1rem;">
+                <span class="detalle-label">Descripción</span>
+                <span class="detalle-value">${pedido.producto.descripcion}</span>
+            </div>
+        `;
+    } else {
+        detalleHTML += `
+            ${pedido.producto.portada ? `
+            <div class="producto-preview">
+                <img src="${pedido.producto.portada}" alt="Diseño personalizado">
+            </div>
+            ` : '<p style="text-align: center; color: var(--text-secondary);">Sin imagen de portada</p>'}
+            
+            <div class="detalle-grid">
+                <div class="detalle-item">
+                    <span class="detalle-label">Tamaño</span>
+                    <span class="detalle-value">${pedido.producto.tam || 'No especificado'}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Tipo de Encuadernación</span>
+                    <span class="detalle-value">${pedido.producto.tipo_encuadernacion || 'No especificado'}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Tipo de Papel</span>
+                    <span class="detalle-value">${pedido.producto.tipo_papel || 'No especificado'}</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Color</span>
+                    <span class="detalle-value">
+                        <span style="display: inline-block; width: 30px; height: 30px; background: ${pedido.producto.color}; border: 2px solid var(--marron-texto); vertical-align: middle;"></span>
+                        ${pedido.producto.color}
+                    </span>
+                </div>
+            </div>
+            ${pedido.producto.descripcion ? `
+            <div class="detalle-item" style="margin-top: 1rem;">
+                <span class="detalle-label">Descripción del cliente</span>
+                <span class="detalle-value">${pedido.producto.descripcion}</span>
+            </div>
+            ` : ''}
+        `;
+    }
+    
+    detalleHTML += '</div>';
+    
+    content.innerHTML = detalleHTML;
+    modal.showModal();
+}
+
+function cerrarModalDetalle() {
+    document.getElementById('modalDetallePedido').close();
+}
+
+function cambiarEstatus(id, estatusActual) {
+    document.getElementById('pedidoIdEstatus').value = id;
+    document.getElementById('nuevoEstatus').value = estatusActual.toLowerCase();
+    document.getElementById('mensajeAdmin').value = '';
+    
+    document.getElementById('modalCambiarEstatus').showModal();
+}
+
+function cerrarModalEstatus() {
+    document.getElementById('modalCambiarEstatus').close();
+}
+
+// Manejar formulario de cambio de estatus
+document.addEventListener('DOMContentLoaded', function() {
+    const formEstatus = document.getElementById('formCambiarEstatus');
+    if (formEstatus) {
+        formEstatus.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('action', 'cambiar_estatus');
+            
+            fetch('../PHP/admin_pedidos.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    mostrarAlerta(data.message, 'success');
+                    cerrarModalEstatus();
+                    cargarPedidos();
+                } else {
+                    mostrarAlerta(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarAlerta('Error al actualizar estatus', 'error');
+            });
+        });
+    }
+});
+
+function actualizarContadorPedidos(pedidos) {
+    // Contar pedidos pendientes
+    const pendientes = pedidos.filter(p => p.estatus.toLowerCase() === 'pendiente').length;
+    
+    // Actualizar contador en el dashboard si existe
+    const contadorElement = document.querySelector('.stat-card .stat-info h3');
+    if (contadorElement && contadorElement.textContent === '0') {
+        // Buscar el stat-card de pedidos y actualizar
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            const text = card.textContent;
+            if (text.includes('Pedidos Activos')) {
+                const h3 = card.querySelector('.stat-info h3');
+                if (h3) h3.textContent = pendientes;
+            }
+        });
+    }
+}
+
+// Actualizar la función pedidos() existente
+function pedidos() {
+    hideAllSections();
+    document.getElementById('pedidos').classList.add('active');
+    updateActiveNav('nav-pedidos');
+    document.getElementById('page-title').textContent = 'Gestión de Pedidos';
+    cargarPedidos();
+}
+
+
 
 // ===== CERRAR SESIÓN =====
 function closeSesion() {

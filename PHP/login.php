@@ -21,7 +21,7 @@
             $_SESSION["usuario"] = $user;
             echo"
                 <script>
-                    window.location='../index.php';
+                    window.location='../Catalogo.php';
                 </script>
             ";
         }

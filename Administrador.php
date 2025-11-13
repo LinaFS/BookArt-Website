@@ -220,6 +220,59 @@
                 </div>
             </div>
         </section>
+        <!-- PEDIDOS -->
+        <section class="content-section" id="pedidos">
+            <div class="section-header">
+                <div class="section-title">
+                    <p>Administra los pedidos de tus clientes</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <select id="filtroEstatus" onchange="filtrarPedidos()" style="padding: 0.8rem; border: 3px solid var(--marron-texto); font-family: var(--font-body); cursor: pointer;">
+                        <option value="todos">Todos los pedidos</option>
+                        <option value="pendiente" selected>Pendientes</option>
+                        <option value="visto">Vistos</option>
+                        <option value="aprobado">Aprobados</option>
+                        <option value="declinado">Declinados</option>
+                        <option value="proceso">En proceso</option>
+                        <option value="terminado">Terminados</option>
+                        <option value="entregado">Entregados</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tabla-card">
+                <div class="tabla-header">
+                    <div class="search-box">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" id="buscarPedido" placeholder="Buscar por cliente o ID..." onkeyup="buscarEnPedidos()">
+                    </div>
+                </div>
+
+                <div class="tabla-wrapper">
+                    <table id="tablaPedidos">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Tipo</th>
+                                <th>Producto</th>
+                                <th>Fecha</th>
+                                <th>Estatus</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaPedidosBody">
+                            <tr>
+                                <td colspan="7" class="loading">
+                                    <div class="spinner"></div>
+                                    Cargando pedidos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- MODALS -->
@@ -299,15 +352,66 @@
         </div>
     </dialog>
 
-    <script>
-        // Actualizar fecha y hora
-        function updateDateTime() {
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('es-ES', options);
-        }
-        updateDateTime();
-        setInterval(updateDateTime, 60000);
-    </script>
+        <!-- MODAL DE DETALLE DE PEDIDO -->
+    <dialog id="modalDetallePedido" class="modal-producto">
+        <div class="modal-header">
+            <h2 id="modalPedidoTitulo">Detalle del Pedido</h2>
+            <button class="btn-cerrar" onclick="cerrarModalDetalle()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <div id="detallePedidoContent" style="padding: 2rem; max-height: 60vh; overflow-y: auto;">
+            <!-- El contenido se cargará dinámicamente -->
+        </div>
+    </dialog>
+
+    <!-- MODAL DE CAMBIO DE ESTATUS -->
+    <dialog id="modalCambiarEstatus" class="modal-producto">
+        <div class="modal-header">
+            <h2>Cambiar Estatus del Pedido</h2>
+            <button class="btn-cerrar" onclick="cerrarModalEstatus()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <form id="formCambiarEstatus" style="padding: 2rem;">
+            <input type="hidden" id="pedidoIdEstatus" name="pedidoId">
+            
+            <div class="form-group">
+                <label for="nuevoEstatus">
+                    <span class="material-symbols-outlined">sync_alt</span>
+                    Nuevo Estatus
+                </label>
+                <select id="nuevoEstatus" name="estatus" required style="width: 100%; padding: 1rem; border: 3px solid var(--marron-texto); font-family: var(--font-body); font-size: 1rem;">
+                    <option value="pendiente">⏳ Pendiente</option>
+                    <option value="visto">👀 Visto</option>
+                    <option value="aprobado">✅ Aprobado</option>
+                    <option value="declinado">❌ Declinado</option>
+                    <option value="proceso">🔨 En Proceso</option>
+                    <option value="terminado">🎉 Terminado</option>
+                    <option value="entregado">📦 Entregado</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="mensajeAdmin">
+                    <span class="material-symbols-outlined">message</span>
+                    Mensaje para el cliente (opcional)
+                </label>
+                <textarea id="mensajeAdmin" name="mensaje" rows="4" 
+                        placeholder="Agrega un mensaje que el cliente verá..."
+                        style="width: 100%; padding: 1rem; border: 3px solid var(--marron-texto); font-family: var(--font-body);"></textarea>
+            </div>
+
+            <div class="modal-footer" style="margin-top: 2rem;">
+                <button type="button" class="btn-cancelar" onclick="cerrarModalEstatus()">Cancelar</button>
+                <button type="submit" class="btn-guardar">
+                    <span class="material-symbols-outlined">save</span>
+                    Actualizar
+                </button>
+            </div>
+        </form>
+    </dialog>
 </body>
 </html>

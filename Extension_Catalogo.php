@@ -113,14 +113,23 @@
                     </p>
 
                     <div class="product-detail-actions">
-                        <button class="btn-add-cart">
-                            <span class="material-symbols-outlined">shopping_cart</span>
-                            Agregar al carrito
-                        </button>
-                        <button class="btn-buy-now">
-                            <span class="material-symbols-outlined">credit_card</span>
-                            Comprar ahora
-                        </button>
+                        <?php if (isset($_SESSION['usuario'])): ?>
+                            <button class="btn-add-cart" onclick="agregarAlCarrito('catalogo', <?php echo $id_producto; ?>)">
+                                <span class="material-symbols-outlined">shopping_cart</span>
+                                Agregar al carrito
+                            </button>
+                            <a href="Carrito.php" class="btn-buy-now" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">
+                                <span class="material-symbols-outlined">shopping_cart_checkout</span>
+                                Ver carrito
+                            </a>
+                        <?php else: ?>
+                            <a href="Inicio_sesion.php?origen=Extension_Catalogo&id=<?php echo $id_producto; ?>&token=<?php echo $token; ?>" 
+                            class="btn-add-cart" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">
+                                <span class="material-symbols-outlined">login</span>
+                                Inicia sesión para comprar
+                            </a>
+                        <?php endif; ?>
+                        
                         <a href="Catalogo.php" class="btn-back-catalog">
                             <span class="material-symbols-outlined">arrow_back</span>
                             Volver al catálogo
@@ -217,6 +226,42 @@
                     toggleMenu();
                 }
             });
+
+            function agregarAlCarrito(tipo, id) {
+                <?php if (!isset($_SESSION['usuario'])): ?>
+                    window.location.href = 'Inicio_sesion.php?origen=Extension_Catalogo&id=<?php echo $id_producto; ?>';
+                    return;
+                <?php endif; ?>
+                
+                fetch('../PHP/carrito_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=add&tipo=${tipo}&id=${id}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mostrar mensaje de éxito
+                        const btn = event.target.closest('button');
+                        const originalHTML = btn.innerHTML;
+                        btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> ¡Agregado!';
+                        btn.style.background = 'var(--verde-bookart)';
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.style.background = '';
+                        }, 2000);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al agregar al carrito');
+                });
+            }
         </script>
     </body>
 </html>

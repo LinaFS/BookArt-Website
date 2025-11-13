@@ -919,6 +919,108 @@ dialog::backdrop {
     background: var(--primary-dark);
 }
 
+/* Estilos adicionales para la tabla de pedidos */
+.pedido-tipo-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border: 2px solid var(--marron-texto);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.pedido-tipo-catalogo {
+    background: var(--azul-bookart);
+    color: white;
+}
+
+.pedido-tipo-personalizada {
+    background: var(--amarillo-bookart);
+    color: var(--marron-texto);
+}
+
+.pedido-estatus {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border: 2px solid var(--marron-texto);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.estatus-pendiente { background: #FFF9C4; color: #827717; }
+.estatus-visto { background: #B3E5FC; color: #01579B; }
+.estatus-aprobado { background: #C8E6C9; color: #1B5E20; }
+.estatus-declinado { background: #FFCDD2; color: #B71C1C; }
+.estatus-proceso { background: #BBDEFB; color: #0D47A1; }
+.estatus-terminado { background: #A5D6A7; color: #2E7D32; }
+.estatus-entregado { background: #E0E0E0; color: #212121; }
+
+.cliente-info {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.cliente-correo {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: block;
+}
+
+.detalle-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px dashed var(--border);
+}
+
+.detalle-section:last-child {
+    border-bottom: none;
+}
+
+.detalle-section h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.detalle-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.detalle-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.detalle-value {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.producto-preview {
+    width: 100%;
+    max-width: 300px;
+    margin: 1rem auto;
+    border: 3px solid var(--border);
+    padding: 1rem;
+    background: var(--bg-main);
+}
+
+.producto-preview img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
     .sidebar {

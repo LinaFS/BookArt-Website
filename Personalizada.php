@@ -1,7 +1,8 @@
 <?php
     session_start();
     if (!isset($_SESSION["usuario"])&&!isset($permiso_id["2"])){
-        session_destroy();
+        header("Location: Inicio_sesion.php");
+        exit();
     }
 ?>
 
@@ -211,6 +212,13 @@
                 </form>
             </div>
         </section>
+        <!-- Modal Alerta -->
+        <dialog id="warning">
+            <p id="mensaje"></p>
+            <div class="btnModal">
+                <button id="btnAcept">Aceptar</button>
+            </div>
+        </dialog>
 
         <!-- FOOTER ARTESANAL -->
         <footer>

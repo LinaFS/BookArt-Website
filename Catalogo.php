@@ -5,7 +5,8 @@
     $catalogo = [];
 
     if (!isset($_SESSION["usuario"])&&!isset($permiso_id["2"])) {
-        session_destroy();
+        header("Location: Inicio_sesion.php");
+        exit();
     }
     require("PHP/conexionBDD.php");
 
