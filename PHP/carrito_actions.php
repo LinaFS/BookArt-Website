@@ -30,6 +30,9 @@ switch($action) {
     case 'checkout':
         realizarCheckout($conexion, $usuarioId);
         break;
+    case 'count':
+        contarItemsCarrito($conexion, $usuarioId);
+        break;
     
     default:
         echo json_encode(['success' => false, 'message' => 'Acción no válida']);
@@ -153,6 +156,27 @@ function realizarCheckout($conexion, $usuarioId) {
         echo json_encode([
             'success' => false, 
             'message' => 'Error al procesar el pedido o no hay productos en el carrito'
+        ]);
+    }
+}
+
+function contarItemsCarrito($conexion, $usuarioId) {
+    $query = "SELECT COUNT(*) as total 
+              FROM pedidos 
+              WHERE IdCuenta = '$usuarioId' AND estatus = 'carrito'";
+    
+    $result = mysqli_query($conexion, $query);
+    
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        echo json_encode([
+            'success' => true, 
+            'count' => (int)$row['total']
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false, 
+            'count' => 0
         ]);
     }
 }

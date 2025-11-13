@@ -74,233 +74,10 @@
     <title>Mi Carrito - BookArt</title>
     <link rel="stylesheet" href="../CSS/reset.css">
     <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="../CSS/styleCarrito.css">
     <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Martian+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <style>
-        /* CSS se mantiene igual, asumiendo que los estilos son correctos */
-        .cart-section {
-            padding: 4rem 2rem;
-            background: var(--crema-papel);
-            min-height: 70vh;
-        }
-        
-        .cart-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .cart-header {
-            background: var(--blanco);
-            padding: 2rem;
-            border: 5px solid var(--marron-texto);
-            border-left: 10px solid var(--verde-bookart);
-            margin-bottom: 2rem;
-            box-shadow: var(--sombra-papel);
-        }
-        
-        .cart-header h1 {
-            font-family: var(--font-display);
-            font-size: 2.5rem;
-            color: var(--marron-texto);
-            margin-bottom: 0.5rem;
-        }
-        
-        .cart-items {
-            background: var(--blanco);
-            border: 5px solid var(--marron-texto);
-            box-shadow: var(--sombra-papel);
-            margin-bottom: 2rem;
-        }
-        
-        .cart-item {
-            display: grid;
-            grid-template-columns: 120px 1fr auto auto;
-            gap: 2rem;
-            padding: 2rem;
-            border-bottom: 3px dashed var(--marron-texto);
-            align-items: center;
-        }
-        
-        .cart-item:last-child {
-            border-bottom: none;
-        }
-        
-        .cart-item-image {
-            width: 120px;
-            height: 120px;
-            border: 4px solid var(--marron-texto);
-            padding: 0.5rem;
-            background: var(--crema-papel);
-        }
-        
-        .cart-item-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .cart-item-info h3 {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            color: var(--marron-texto);
-            margin-bottom: 0.5rem;
-        }
-        
-        .cart-item-type {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background: var(--amarillo-bookart);
-            color: var(--marron-texto);
-            border: 2px solid var(--marron-texto);
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .cart-item-price {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            color: var(--verde-bookart);
-            font-weight: bold;
-        }
-        
-        .cart-item-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .btn-remove {
-            padding: 0.8rem;
-            background: var(--rojo-bookart);
-            color: var(--blanco);
-            border: 3px solid var(--marron-texto);
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 3px 3px 0px var(--marron-texto);
-        }
-        
-        .btn-remove:hover {
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0px var(--marron-texto);
-        }
-        
-        .cart-summary {
-            background: var(--blanco);
-            padding: 2rem;
-            border: 5px solid var(--marron-texto);
-            border-left: 10px solid var(--amarillo-bookart);
-            box-shadow: var(--sombra-papel);
-        }
-        
-        .cart-summary h2 {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            color: var(--marron-texto);
-            margin-bottom: 1.5rem;
-        }
-        
-        .summary-line {
-            display: flex;
-            justify-content: space-between;
-            padding: 1rem 0;
-            border-bottom: 2px dashed var(--marron-texto);
-            font-size: 1.1rem;
-        }
-        
-        .summary-total {
-            font-family: var(--font-display);
-            font-size: 2.5rem;
-            color: var(--verde-bookart);
-            font-weight: bold;
-            margin-top: 1rem;
-        }
-        
-        .cart-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .btn-checkout {
-            flex: 1;
-            padding: 1.5rem;
-            background: var(--verde-bookart);
-            color: var(--blanco);
-            border: 4px solid var(--marron-texto);
-            font-family: var(--font-body);
-            font-weight: 700;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 5px 5px 0px var(--marron-texto);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .btn-checkout:hover {
-            transform: translate(3px, 3px);
-            box-shadow: 2px 2px 0px var(--marron-texto);
-        }
-        
-        .btn-continue {
-            flex: 1;
-            padding: 1.5rem;
-            background: var(--amarillo-bookart);
-            color: var(--marron-texto);
-            border: 4px solid var(--marron-texto);
-            font-family: var(--font-body);
-            font-weight: 700;
-            font-size: 1.2rem;
-            text-decoration: none;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 5px 5px 0px var(--marron-texto);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .btn-continue:hover {
-            transform: translate(3px, 3px);
-            box-shadow: 2px 2px 0px var(--marron-texto);
-        }
-        
-        .empty-cart {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: var(--blanco);
-            border: 5px solid var(--marron-texto);
-            box-shadow: var(--sombra-papel);
-        }
-        
-        .empty-cart-icon {
-            font-size: 5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .empty-cart h2 {
-            font-family: var(--font-display);
-            font-size: 2.2rem;
-            color: var(--marron-texto);
-            margin-bottom: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .cart-item {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            
-            .cart-item-image {
-                margin: 0 auto;
-            }
-            
-            .cart-actions {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <script src="../JavaScript/userMenu.js"></script>
 </head>
 
 <body>
@@ -312,18 +89,70 @@
                 </a>
                 <h1 class="site-title">BookArt</h1>
             </div>
-            
+
             <nav class="main-nav" id="mainNav">
                 <ul class="nav-links">
                     <li><a href="index.php">Inicio</a></li>
                     <li><a href="Productos.php">Productos</a></li>
                     <li><a href="Contacto.php">Contacto</a></li>
-                    <li><a href="MisPedidos.php">Mis Pedidos</a></li>
                 </ul>
-                <a href="../PHP/cerrar_sesion.php" class="btn-session">Cerrar sesión</a>
+                
+                <?php if (isset($_SESSION['usuario'])): ?>
+                    <!-- MENÚ DE USUARIO DESPLEGABLE -->
+                    <div class="user-menu-wrapper active">
+                        <button class="user-menu-trigger" type="button">
+                            <span class="material-symbols-outlined">account_circle</span>
+                            <span class="user-name-display">
+                                <?php 
+                                // Mostrar solo el nombre de usuario o primera parte del correo
+                                $displayName = $_SESSION['usuario'];
+                                if (strpos($displayName, '@') !== false) {
+                                    $displayName = explode('@', $displayName)[0];
+                                }
+                                echo htmlspecialchars(substr($displayName, 0, 15)); 
+                                ?>
+                            </span>
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </button>
+                        
+                        <div class="user-dropdown">
+                            <div class="user-dropdown-header">
+                                <div class="user-dropdown-avatar">
+                                    <span class="material-symbols-outlined">person</span>
+                                </div>
+                                <div class="user-dropdown-name">
+                                    <?php echo htmlspecialchars($displayName); ?>
+                                </div>
+                                <div class="user-dropdown-email">
+                                    <?php echo htmlspecialchars($_SESSION['usuario']); ?>
+                                </div>
+                            </div>
+                            
+                            <div class="user-dropdown-menu">
+                                <a href="MisPedidos.php" class="user-dropdown-item">
+                                    <span class="material-symbols-outlined">receipt_long</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                
+                                <a href="Carrito.php" class="user-dropdown-item" style="position: relative;">
+                                    <span class="material-symbols-outlined">shopping_cart</span>
+                                    <span>Mi Carrito</span>
+                                    <span class="user-menu-badge" style="display: none;">0</span>
+                                </a>
+                                
+                                <a href="../PHP/cerrar_sesion.php" class="user-dropdown-item logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <!-- BOTÓN DE INICIO DE SESIÓN -->
+                    <a href="Inicio_sesion.php" class="btn-session">Iniciar sesión</a>
+                <?php endif; ?>
             </nav>
-            
-            <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+            <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()" aria-label="Toggle navigation menu">
                 <span class="material-symbols-outlined">menu</span>
             </button>
         </div>

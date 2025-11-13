@@ -2683,3 +2683,183 @@ dialog button{
     font-size: 1rem;
     transition: background 0.3s ease;
 }
+
+/* ===================================
+   MENÚ DESPLEGABLE DE USUARIO
+   =================================== */
+
+.user-menu-wrapper {
+    position: relative;
+    display: none; /* Oculto por defecto, se mostrará con JS cuando haya sesión */
+}
+
+.user-menu-wrapper.active {
+    display: block;
+}
+
+.user-menu-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    background: var(--verde-bookart);
+    color: var(--blanco);
+    border: 3px solid var(--marron-texto);
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 4px 4px 0px var(--marron-texto);
+    transition: all 0.3s ease;
+}
+
+.user-menu-trigger:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--marron-texto);
+}
+
+.user-menu-trigger .material-symbols-outlined {
+    font-size: 24px;
+}
+
+.user-menu-trigger .user-name-display {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 280px;
+    background: var(--blanco);
+    border: 5px solid var(--marron-texto);
+    box-shadow: 6px 6px 0px var(--marron-texto);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.user-menu-wrapper.open .user-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-dropdown-header {
+    background: var(--amarillo-bookart);
+    padding: 1.5rem;
+    border-bottom: 3px solid var(--marron-texto);
+    text-align: center;
+}
+
+.user-dropdown-avatar {
+    width: 60px;
+    height: 60px;
+    background: var(--verde-bookart);
+    border-radius: 50%;
+    margin: 0 auto 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--marron-texto);
+}
+
+.user-dropdown-avatar .material-symbols-outlined {
+    font-size: 36px;
+    color: var(--blanco);
+}
+
+.user-dropdown-name {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--marron-texto);
+    margin-bottom: 0.3rem;
+}
+
+.user-dropdown-email {
+    font-size: 0.85rem;
+    color: var(--marron-texto);
+    opacity: 0.8;
+}
+
+.user-dropdown-menu {
+    padding: 0.5rem 0;
+}
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: var(--marron-texto);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-bottom: 2px dashed transparent;
+}
+
+.user-dropdown-item:hover {
+    background: var(--crema-papel);
+    border-bottom-color: var(--verde-bookart);
+    padding-left: 2rem;
+}
+
+.user-dropdown-item .material-symbols-outlined {
+    font-size: 24px;
+    color: var(--verde-bookart);
+}
+
+.user-dropdown-item.logout {
+    border-top: 3px solid var(--marron-texto);
+    margin-top: 0.5rem;
+}
+
+.user-dropdown-item.logout:hover {
+    background: var(--rojo-bookart);
+    color: var(--blanco);
+}
+
+.user-dropdown-item.logout:hover .material-symbols-outlined {
+    color: var(--blanco);
+}
+
+/* Badge de contador (para carrito) */
+.user-menu-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--rojo-bookart);
+    color: var(--blanco);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 50%;
+    border: 2px solid var(--marron-texto);
+    min-width: 22px;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .user-menu-wrapper {
+        width: 100%;
+    }
+    
+    .user-menu-trigger {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .user-dropdown {
+        position: static;
+        width: 100%;
+        margin-top: 1rem;
+    }
+}

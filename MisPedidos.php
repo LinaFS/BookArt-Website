@@ -80,223 +80,11 @@
     <title>Mis Pedidos - BookArt</title>
     <link rel="stylesheet" href="../CSS/reset.css">
     <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="../CSS/styleMisPedidos.css">
     <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Martian+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <style>
-        /* [Estilos CSS - Sin cambios mayores, se mantiene tu diseño] */
-        .pedidos-section {
-            padding: 4rem 2rem;
-            background: var(--crema-papel);
-            min-height: 70vh;
-        }
-        
-        .pedidos-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .pedidos-header {
-            background: var(--blanco);
-            padding: 2rem;
-            border: 5px solid var(--marron-texto);
-            border-left: 10px solid var(--verde-bookart);
-            margin-bottom: 2rem;
-            box-shadow: var(--sombra-papel);
-        }
-        
-        .pedidos-header h1 {
-            font-family: var(--font-display);
-            font-size: 2.5rem;
-            color: var(--marron-texto);
-            margin-bottom: 0.5rem;
-        }
-        
-        .pedido-card {
-            background: var(--blanco);
-            border: 5px solid var(--marron-texto);
-            box-shadow: var(--sombra-papel);
-            margin-bottom: 2rem;
-            overflow: hidden;
-        }
-        
-        .pedido-header {
-            background: var(--amarillo-bookart);
-            padding: 1.5rem;
-            border-bottom: 3px solid var(--marron-texto);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .pedido-id {
-            font-family: var(--font-display);
-            font-size: 1.3rem;
-            color: var(--marron-texto);
-        }
-        
-        .pedido-fecha {
-            color: var(--marron-texto);
-            font-weight: 600;
-        }
-        
-        .pedido-body {
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 150px 1fr auto;
-            gap: 2rem;
-            align-items: start;
-        }
-        
-        .pedido-image {
-            width: 150px;
-            height: 150px;
-            border: 4px solid var(--marron-texto);
-            padding: 0.5rem;
-            background: var(--crema-papel);
-        }
-        
-        .pedido-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .pedido-info h3 {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            color: var(--marron-texto);
-            margin-bottom: 0.5rem;
-        }
-        
-        .pedido-tipo {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background: var(--verde-bookart);
-            color: var(--blanco);
-            border: 2px solid var(--marron-texto);
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-        
-        .pedido-descripcion {
-            color: var(--marron-texto);
-            line-height: 1.6;
-            margin-bottom: 1rem;
-        }
-        
-        .pedido-precio {
-            font-family: var(--font-display);
-            font-size: 2.2rem;
-            color: var(--verde-bookart);
-            font-weight: bold;
-        }
-        
-        .pedido-status {
-            padding: 1.5rem;
-            border-top: 3px dashed var(--marron-texto);
-        }
-        
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.8rem 1.5rem;
-            border: 3px solid var(--marron-texto);
-            font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: 3px 3px 0px var(--marron-texto);
-        }
-        
-        .status-pendiente {
-            background: var(--amarillo-bookart);
-            color: var(--marron-texto);
-        }
-        
-        .status-visto {
-            background: #89CFF0;
-            color: var(--marron-texto);
-        }
-        
-        .status-aprobado {
-            background: #90EE90;
-            color: var(--marron-texto);
-        }
-        
-        .status-declinado {
-            background: var(--rojo-bookart);
-            color: var(--blanco);
-        }
-        
-        .status-proceso {
-            background: var(--azul-bookart);
-            color: var(--blanco);
-        }
-        
-        .status-terminado {
-            background: var(--verde-bookart);
-            color: var(--blanco);
-        }
-        
-        .status-entregado {
-            background: var(--marron-texto);
-            color: var(--blanco);
-        }
-        
-        .mensaje-admin {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: var(--crema-papel);
-            border-left: 4px solid var(--verde-bookart);
-        }
-        
-        .mensaje-admin-header {
-            font-weight: 700;
-            color: var(--verde-bookart);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .empty-pedidos {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: var(--blanco);
-            border: 5px solid var(--marron-texto);
-            box-shadow: var(--sombra-papel);
-        }
-        
-        .empty-pedidos-icon {
-            font-size: 5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .empty-pedidos h2 {
-            font-family: var(--font-display);
-            font-size: 2.2rem;
-            color: var(--marron-texto);
-            margin-bottom: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .pedido-body {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            
-            .pedido-image {
-                margin: 0 auto;
-            }
-            
-            .pedido-header {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-    </style>
+    <script src="../JavaScript/misPedidos.js" defer></script>
+    <script src="../JavaScript/userMenu.js" defer></script>
 </head>
 
 <body>
@@ -314,9 +102,62 @@
                     <li><a href="index.php">Inicio</a></li>
                     <li><a href="Productos.php">Productos</a></li>
                     <li><a href="Contacto.php">Contacto</a></li>
-                    <li><a href="Carrito.php">Carrito</a></li>
-                    </ul>
-                <a href="../PHP/cerrar_sesion.php" class="btn-session">Cerrar sesión</a>
+                </ul>
+                
+                <?php if (isset($_SESSION['usuario'])): ?>
+                    <!-- MENÚ DE USUARIO DESPLEGABLE -->
+                    <div class="user-menu-wrapper active">
+                        <button class="user-menu-trigger" type="button">
+                            <span class="material-symbols-outlined">account_circle</span>
+                            <span class="user-name-display">
+                                <?php 
+                                // Mostrar solo el nombre de usuario o primera parte del correo
+                                $displayName = $_SESSION['usuario'];
+                                if (strpos($displayName, '@') !== false) {
+                                    $displayName = explode('@', $displayName)[0];
+                                }
+                                echo htmlspecialchars(substr($displayName, 0, 15)); 
+                                ?>
+                            </span>
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </button>
+                        
+                        <div class="user-dropdown">
+                            <div class="user-dropdown-header">
+                                <div class="user-dropdown-avatar">
+                                    <span class="material-symbols-outlined">person</span>
+                                </div>
+                                <div class="user-dropdown-name">
+                                    <?php echo htmlspecialchars($displayName); ?>
+                                </div>
+                                <div class="user-dropdown-email">
+                                    <?php echo htmlspecialchars($_SESSION['usuario']); ?>
+                                </div>
+                            </div>
+                            
+                            <div class="user-dropdown-menu">
+                                <a href="MisPedidos.php" class="user-dropdown-item">
+                                    <span class="material-symbols-outlined">receipt_long</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                
+                                <a href="Carrito.php" class="user-dropdown-item" style="position: relative;">
+                                    <span class="material-symbols-outlined">shopping_cart</span>
+                                    <span>Mi Carrito</span>
+                                    <span class="user-menu-badge" style="display: none;">0</span>
+                                </a>
+                                
+                                <a href="../PHP/cerrar_sesion.php" class="user-dropdown-item logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <!-- BOTÓN DE INICIO DE SESIÓN -->
+                    <a href="Inicio_sesion.php" class="btn-session">Iniciar sesión</a>
+                <?php endif; ?>
             </nav>
             
             <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
@@ -437,6 +278,28 @@
                             <span class="status-badge <?php echo $statusClass; ?>">
                                 <?php echo $statusIcon . ' ' . $statusText; ?>
                             </span>
+                            <?php
+                            // Solo mostrar acciones si el pedido está en estado pendiente o visto
+                            $puedeEditar = in_array(strtolower($pedido['estatus']), ['pendiente', 'visto']);
+                            ?>
+
+                            <?php if ($puedeEditar): ?>
+                            <div class="pedido-actions">
+                                <?php if ($pedido['id_tipoPedido'] == 2): // Solo personalizadas se pueden "editar" ?>
+                                    <button onclick="editarPedido('<?php echo $pedido['idPedido']; ?>', <?php echo $pedido['id_tipoPedido']; ?>)" 
+                                            class="btn-action btn-editar-pedido">
+                                        <span class="material-symbols-outlined">edit</span>
+                                        Editar
+                                    </button>
+                                <?php endif; ?>
+                                
+                                <button onclick="cancelarPedido('<?php echo $pedido['idPedido']; ?>')" 
+                                        class="btn-action btn-cancelar-pedido">
+                                    <span class="material-symbols-outlined">cancel</span>
+                                    Cancelar Pedido
+                                </button>
+                            </div>
+                            <?php endif; ?>
                             
                             <?php if ($estatus == 'aprobado' || $estatus == 'proceso' || $estatus == 'terminado'): ?>
                                 <div class="mensaje-admin">
@@ -494,43 +357,31 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        function toggleMenu() {
-            const nav = document.getElementById('mainNav');
-            const toggle = document.getElementById('menuToggle');
-            nav.classList.toggle('active');
-            
-            const icon = toggle.querySelector('.material-symbols-outlined');
-            icon.textContent = nav.classList.contains('active') ? 'close' : 'menu';
-            
-            if (nav.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        }
-
-        // Modal de mensajes
-        document.addEventListener('DOMContentLoaded', function() {
-            const mensajeElement = document.getElementById('mensaje');
-            const warningDialog = document.getElementById('warning');
-            const btnAcept = document.getElementById('btnAcept');
-            
-            if (mensajeElement && mensajeElement.textContent.trim() !== '') {
-                warningDialog.showModal();
-            }
-
-            if (btnAcept) {
-                btnAcept.addEventListener('click', function() {
-                    warningDialog.close();
-                    // Limpiar URL al cerrar el modal
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                });
-            }
-        });
-    </script>
+    <!-- Dialog de confirmación de cancelación -->
+    <dialog id="dialogConfirmCancel" style="max-width: 500px; padding: 0;">
+        <div style="background: var(--amarillo-bookart); padding: 1.5rem; border-bottom: 3px solid var(--marron-texto);">
+            <h2 style="font-family: var(--font-display); font-size: 1.8rem; color: var(--marron-texto); margin: 0;">
+                ⚠️ ¿Cancelar pedido?
+            </h2>
+        </div>
+        <div style="padding: 2rem;">
+            <p id="mensajeConfirmCancel" style="color: var(--marron-texto); margin-bottom: 2rem; line-height: 1.6;">
+                ¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button onclick="cerrarDialogConfirmCancel()" 
+                        style="padding: 0.8rem 1.5rem; background: var(--marron-texto); color: white; border: none; cursor: pointer; font-family: var(--font-body); font-weight: 700;">
+                    No, mantener
+                </button>
+                <button id="btnConfirmCancel" onclick="confirmarCancelacion()" 
+                        style="padding: 0.8rem 1.5rem; background: var(--rojo-bookart); color: white; border: none; cursor: pointer; font-family: var(--font-body); font-weight: 700;">
+                    Sí, cancelar pedido
+                </button>
+            </div>
+        </div>
+    </dialog>
 </body>
+
 </html>
 
 <?php mysqli_close($conexion); ?>

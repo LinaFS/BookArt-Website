@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="../CSS/style.css">
         <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Martian+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <script src="../JavaScript/userMenu.js"></script>
     </head>
 
     <body>
@@ -34,13 +35,61 @@
                         <li><a href="Productos.php">Productos</a></li>
                         <li><a href="Contacto.php">Contacto</a></li>
                     </ul>
-                    <?php
-                        if (isset($_SESSION['usuario'])) {
-                            echo '<a href="../PHP/cerrar_sesion.php" class="btn-session">Cerrar sesión</a>';
-                        } else {
-                            echo '<a href="Inicio_sesion.php" class="btn-session">Iniciar sesión</a>';
-                        }
-                    ?>
+                    
+                    <?php if (isset($_SESSION['usuario'])): ?>
+                        <!-- MENÚ DE USUARIO DESPLEGABLE -->
+                        <div class="user-menu-wrapper active">
+                            <button class="user-menu-trigger" type="button">
+                                <span class="material-symbols-outlined">account_circle</span>
+                                <span class="user-name-display">
+                                    <?php 
+                                    // Mostrar solo el nombre de usuario o primera parte del correo
+                                    $displayName = $_SESSION['usuario'];
+                                    if (strpos($displayName, '@') !== false) {
+                                        $displayName = explode('@', $displayName)[0];
+                                    }
+                                    echo htmlspecialchars(substr($displayName, 0, 15)); 
+                                    ?>
+                                </span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            
+                            <div class="user-dropdown">
+                                <div class="user-dropdown-header">
+                                    <div class="user-dropdown-avatar">
+                                        <span class="material-symbols-outlined">person</span>
+                                    </div>
+                                    <div class="user-dropdown-name">
+                                        <?php echo htmlspecialchars($displayName); ?>
+                                    </div>
+                                    <div class="user-dropdown-email">
+                                        <?php echo htmlspecialchars($_SESSION['usuario']); ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="user-dropdown-menu">
+                                    <a href="MisPedidos.php" class="user-dropdown-item">
+                                        <span class="material-symbols-outlined">receipt_long</span>
+                                        <span>Mis Pedidos</span>
+                                    </a>
+                                    
+                                    <a href="Carrito.php" class="user-dropdown-item" style="position: relative;">
+                                        <span class="material-symbols-outlined">shopping_cart</span>
+                                        <span>Mi Carrito</span>
+                                        <span class="user-menu-badge" style="display: none;">0</span>
+                                    </a>
+                                    
+                                    <a href="../PHP/cerrar_sesion.php" class="user-dropdown-item logout">
+                                        <span class="material-symbols-outlined">logout</span>
+                                        <span>Cerrar Sesión</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <!-- BOTÓN DE INICIO DE SESIÓN -->
+                        <a href="Inicio_sesion.php" class="btn-session">Iniciar sesión</a>
+                    <?php endif; ?>
                 </nav>
                 
                 <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
