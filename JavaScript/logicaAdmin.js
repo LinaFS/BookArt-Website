@@ -1,3 +1,9 @@
+// ===== VARIABLES GLOBALES (DECLARADAS AL INICIO) =====
+let productoEliminarId = null;
+let modoEdicion = false;
+let pedidosData = [];
+let filtroActualEstatus = 'pendiente';
+
 // ===== INICIALIZACIÓN AL CARGAR LA PÁGINA =====
 document.addEventListener('DOMContentLoaded', function() {
     // Cargar principal por defecto
@@ -5,13 +11,96 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Cargar estadísticas iniciales
     cargarEstadisticas();
+    
+    // Event listeners para formularios
+    setupFormularios();
 });
+
+// ===== SETUP DE FORMULARIOS =====
+function setupFormularios() {
+    // Formulario de producto
+    const form = document.getElementById('formProducto');
+    if(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const accion = modoEdicion ? 'editar' : 'agregar';
+            formData.append('action', accion);
+            
+            if(!modoEdicion && !formData.get('imagen').size) {
+                mostrarAlerta('Debes seleccionar una imagen', 'warning');
+                return;
+            }
+            
+            fetch('../PHP/ajax_catalogo.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    mostrarAlerta(data.message, 'success');
+                    cerrarModal();
+                    cargarCatalogo();
+                } else {
+                    mostrarAlerta(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarAlerta('Error al guardar producto', 'error');
+            });
+        });
+    }
+    
+    // Formulario de cambio de estatus
+    const formEstatus = document.getElementById('formCambiarEstatus');
+    if (formEstatus) {
+        formEstatus.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('action', 'cambiar_estatus');
+            
+            fetch('../PHP/admin_pedidos.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    mostrarAlerta(data.message, 'success');
+                    cerrarModalEstatus();
+                    cargarPedidos();
+                } else {
+                    mostrarAlerta(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarAlerta('Error al actualizar estatus', 'error');
+            });
+        });
+    }
+    
+    // Botón de aceptar en modal de alerta
+    const btnAcept = document.getElementById('btnAcept');
+    if(btnAcept) {
+        btnAcept.addEventListener('click', function() {
+            document.getElementById('warning').close();
+        });
+    }
+}
 
 // Actualizar fecha y hora
 function updateDateTime() {
     const now = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('currentDate').textContent = now.toLocaleDateString('es-ES', options);
+    const dateElement = document.getElementById('currentDate');
+    if (dateElement) {
+        dateElement.textContent = now.toLocaleDateString('es-ES', options);
+    }
 }
 updateDateTime();
 setInterval(updateDateTime, 60000);
@@ -27,14 +116,16 @@ function principal() {
     cargarEstadisticas();
 }
 
-// Nueva función para cargar estadísticas
 function cargarEstadisticas() {
     // 1. Cargar total de productos
     fetch('../PHP/ajax_catalogo.php?action=listar')
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                document.getElementById('totalProductos').textContent = data.productos.length;
+                const totalElement = document.getElementById('totalProductos');
+                if (totalElement) {
+                    totalElement.textContent = data.productos.length;
+                }
             }
         })
         .catch(error => console.error('Error cargando productos:', error));
@@ -44,7 +135,6 @@ function cargarEstadisticas() {
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                // Actualizar pedidos activos (pendientes + vistos + aprobados + proceso)
                 const statCards = document.querySelectorAll('.stat-card');
                 statCards.forEach(card => {
                     const text = card.textContent;
@@ -88,13 +178,13 @@ function updateActiveNav(activeId) {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
     });
-    document.getElementById(activeId)?.classList.add('active');
+    const activeNav = document.getElementById(activeId);
+    if (activeNav) {
+        activeNav.classList.add('active');
+    }
 }
 
 // ===== GESTIÓN DE CATÁLOGO =====
-let productoEliminarId = null;
-let modoEdicion = false;
-
 function cargarCatalogo() {
     const tbody = document.getElementById('tablaBody');
     tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spinner"></div>Cargando productos...</td></tr>';
@@ -162,7 +252,7 @@ function filtrarTabla() {
     });
 }
 
-// ===== MODALES =====
+// ===== MODALES DE CATÁLOGO =====
 function abrirModalAgregar() {
     modoEdicion = false;
     document.getElementById('modalTitulo').textContent = 'Agregar Producto';
@@ -269,104 +359,68 @@ function previsualizarImagen(event) {
     }
 }
 
-// ===== ENVÍO DE FORMULARIO =====
-document.addEventListener('DOMContentLoaded', function() {
-    // Formulario de producto
-    const form = document.getElementById('formProducto');
-    if(form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const accion = modoEdicion ? 'editar' : 'agregar';
-            formData.append('action', accion);
-            
-            if(!modoEdicion && !formData.get('imagen').size) {
-                mostrarAlerta('Debes seleccionar una imagen', 'warning');
-                return;
-            }
-            
-            fetch('../PHP/ajax_catalogo.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    mostrarAlerta(data.message, 'success');
-                    cerrarModal();
-                    cargarCatalogo();
-                } else {
-                    mostrarAlerta(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                mostrarAlerta('Error al guardar producto', 'error');
-            });
-        });
-    }
-});
-
 // ===== SISTEMA DE ALERTAS =====
 function mostrarAlerta(mensaje, tipo) {
     const modal = document.getElementById('warning');
     const mensajeEl = document.getElementById('mensaje');
     
-    mensajeEl.textContent = mensaje;
-    mensajeEl.className = tipo;
-    
-    modal.showModal();
-    
-    setTimeout(() => {
-        modal.close();
-    }, 3000);
+    if (modal && mensajeEl) {
+        mensajeEl.textContent = mensaje;
+        mensajeEl.className = tipo;
+        
+        modal.showModal();
+        
+        setTimeout(() => {
+            modal.close();
+        }, 3000);
+    }
 }
 
-// Cerrar alerta manualmente
-document.addEventListener('DOMContentLoaded', function() {
-    const btnAcept = document.getElementById('btnAcept');
-    if(btnAcept) {
-        btnAcept.addEventListener('click', function() {
-            document.getElementById('warning').close();
-        });
-    }
-});
-
-// ===== AGREGAR ESTAS FUNCIONES AL FINAL DE logicaAdmin.js =====
-
 // ===== GESTIÓN DE PEDIDOS =====
-let pedidosData = [];
-let filtroActualEstatus = 'pendiente';
-
 function cargarPedidos() {
     const tbody = document.getElementById('tablaPedidosBody');
+    if (!tbody) {
+        console.error('❌ No se encontró tablaPedidosBody');
+        return;
+    }
+    
     tbody.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div>Cargando pedidos...</td></tr>';
     
     fetch('../PHP/admin_pedidos.php?action=listar')
         .then(response => response.json())
         .then(data => {
+            console.log('📦 Respuesta del servidor:', data);
+            
             if(data.success) {
                 pedidosData = data.pedidos;
+                console.log('✅ Pedidos cargados:', pedidosData.length);
                 mostrarPedidos(pedidosData);
                 actualizarContadorPedidos(pedidosData);
             } else {
-                tbody.innerHTML = '<tr><td colspan="7" class="error">Error al cargar pedidos: ' + data.message + '</td></tr>';
+                console.error('❌ Error en respuesta:', data.message);
+                tbody.innerHTML = `<tr><td colspan="7" class="error">Error al cargar pedidos: ${data.message}</td></tr>`;
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            tbody.innerHTML = '<tr><td colspan="7" class="error">Error de conexión</td></tr>';
+            console.error('❌ Error de conexión:', error);
+            tbody.innerHTML = '<tr><td colspan="7" class="error">Error de conexión: ' + error.message + '</td></tr>';
         });
 }
 
 function mostrarPedidos(pedidos) {
     const tbody = document.getElementById('tablaPedidosBody');
+    if (!tbody) return;
+    
+    console.log('🔄 Mostrando pedidos, total:', pedidos.length);
     
     // Filtrar por estatus si hay filtro activo
-    const filtro = document.getElementById('filtroEstatus').value;
+    const filtroSelect = document.getElementById('filtroEstatus');
+    const filtro = filtroSelect ? filtroSelect.value : 'todos';
+    console.log('🔍 Filtro actual:', filtro);
+    
     if (filtro !== 'todos') {
         pedidos = pedidos.filter(p => p.estatus.toLowerCase() === filtro);
+        console.log('📊 Pedidos después del filtro:', pedidos.length);
     }
     
     if(pedidos.length === 0) {
@@ -396,8 +450,8 @@ function mostrarPedidos(pedidos) {
             <td><strong>#${String(pedido.id).padStart(5, '0')}</strong></td>
             <td>
                 <div class="cliente-info">
-                    ${pedido.cliente_nombre}
-                    <span class="cliente-correo">${pedido.cliente_correo}</span>
+                    ${pedido.cliente_nombre || 'N/A'} ${pedido.paterno || ''} ${pedido.materno || ''}
+                    <span class="cliente-correo">${pedido.cliente_correo || 'N/A'}</span>
                 </div>
             </td>
             <td>
@@ -405,7 +459,7 @@ function mostrarPedidos(pedidos) {
                     ${tipoTexto}
                 </span>
             </td>
-            <td class="nombre-col">${pedido.producto_nombre}</td>
+            <td class="nombre-col">${pedido.producto_nombre || 'N/A'}</td>
             <td>
                 ${pedido.fecha}<br>
                 <small style="color: var(--text-secondary);">${pedido.hora}</small>
@@ -428,15 +482,24 @@ function mostrarPedidos(pedidos) {
         </tr>
         `;
     }).join('');
+    
+    console.log('✅ Tabla actualizada');
 }
 
 function filtrarPedidos() {
-    filtroActualEstatus = document.getElementById('filtroEstatus').value;
-    mostrarPedidos(pedidosData);
+    const filtroSelect = document.getElementById('filtroEstatus');
+    if (filtroSelect) {
+        filtroActualEstatus = filtroSelect.value;
+        console.log('🔄 Filtrando por:', filtroActualEstatus);
+        mostrarPedidos(pedidosData);
+    }
 }
 
 function buscarEnPedidos() {
-    const filtro = document.getElementById('buscarPedido').value.toLowerCase();
+    const searchInput = document.getElementById('buscarPedido');
+    if (!searchInput) return;
+    
+    const filtro = searchInput.value.toLowerCase();
     const filas = document.querySelectorAll('#tablaPedidosBody tr');
     
     filas.forEach(fila => {
@@ -446,17 +509,21 @@ function buscarEnPedidos() {
 }
 
 function verDetallePedido(id) {
+    console.log('👁️ Viendo detalle del pedido:', id);
+    
     fetch(`../PHP/admin_pedidos.php?action=detalle&id=${id}`)
         .then(response => response.json())
         .then(data => {
+            console.log('📋 Detalle recibido:', data);
+            
             if(data.success) {
                 mostrarDetallePedido(data.pedido);
             } else {
-                mostrarAlerta('Error al cargar detalle del pedido', 'error');
+                mostrarAlerta('Error al cargar detalle del pedido: ' + data.message, 'error');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('❌ Error:', error);
             mostrarAlerta('Error de conexión', 'error');
         });
 }
@@ -464,6 +531,8 @@ function verDetallePedido(id) {
 function mostrarDetallePedido(pedido) {
     const modal = document.getElementById('modalDetallePedido');
     const content = document.getElementById('detallePedidoContent');
+    
+    if (!modal || !content) return;
     
     document.getElementById('modalPedidoTitulo').textContent = 
         `Pedido #${String(pedido.id).padStart(5, '0')} - ${pedido.tipo === 'catalogo' ? 'Catálogo' : 'Personalizada'}`;
@@ -586,7 +655,10 @@ function mostrarDetallePedido(pedido) {
 }
 
 function cerrarModalDetalle() {
-    document.getElementById('modalDetallePedido').close();
+    const modal = document.getElementById('modalDetallePedido');
+    if (modal) {
+        modal.close();
+    }
 }
 
 function cambiarEstatus(id, estatusActual) {
@@ -598,72 +670,28 @@ function cambiarEstatus(id, estatusActual) {
 }
 
 function cerrarModalEstatus() {
-    document.getElementById('modalCambiarEstatus').close();
-}
-
-// Manejar formulario de cambio de estatus
-document.addEventListener('DOMContentLoaded', function() {
-    const formEstatus = document.getElementById('formCambiarEstatus');
-    if (formEstatus) {
-        formEstatus.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            formData.append('action', 'cambiar_estatus');
-            
-            fetch('../PHP/admin_pedidos.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    mostrarAlerta(data.message, 'success');
-                    cerrarModalEstatus();
-                    cargarPedidos();
-                } else {
-                    mostrarAlerta(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                mostrarAlerta('Error al actualizar estatus', 'error');
-            });
-        });
+    const modal = document.getElementById('modalCambiarEstatus');
+    if (modal) {
+        modal.close();
     }
-});
+}
 
 function actualizarContadorPedidos(pedidos) {
-    // Contar pedidos pendientes
     const pendientes = pedidos.filter(p => p.estatus.toLowerCase() === 'pendiente').length;
     
-    // Actualizar contador en el dashboard si existe
-    const contadorElement = document.querySelector('.stat-card .stat-info h3');
-    if (contadorElement && contadorElement.textContent === '0') {
-        // Buscar el stat-card de pedidos y actualizar
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards.forEach(card => {
-            const text = card.textContent;
-            if (text.includes('Pedidos Activos')) {
-                const h3 = card.querySelector('.stat-info h3');
-                if (h3) h3.textContent = pendientes;
-            }
-        });
-    }
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        const text = card.textContent;
+        if (text.includes('Pedidos Activos')) {
+            const h3 = card.querySelector('.stat-info h3');
+            if (h3) h3.textContent = pendientes;
+        }
+    });
 }
-
-// Actualizar la función pedidos() existente
-function pedidos() {
-    hideAllSections();
-    document.getElementById('pedidos').classList.add('active');
-    updateActiveNav('nav-pedidos');
-    document.getElementById('page-title').textContent = 'Gestión de Pedidos';
-    cargarPedidos();
-}
-
-
 
 // ===== CERRAR SESIÓN =====
 function closeSesion() {
     window.location.href = '../PHP/cerrar_sesion.php';
 }
+
+console.log('✅ logicaAdmin.js cargado correctamente');

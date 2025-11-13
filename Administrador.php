@@ -23,8 +23,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <img src="../img/Logo.png" alt="BookArt Logo" class="logo">
-            <h2>BookArt</h2>
+            <img src="../img/Logo/BookArt Negativo_B-N.png" alt="BookArt Logo" class="logo">
         </div>
 
         <div class="user-info">
@@ -191,7 +190,7 @@
                 </div>
             </div>
         </section>
-        
+
         <!-- PEDIDOS -->
         <section class="content-section" id="pedidos">
             <div class="section-header">
