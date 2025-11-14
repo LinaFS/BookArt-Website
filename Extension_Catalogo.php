@@ -59,7 +59,7 @@
             <div class="header-content">
                 <div class="logo-container">
                     <a href="index.php">
-                        <img class="logo" src="../img/Logo.png" alt="BookArt Logo">
+                        <img class="logo" src="../img/Logo/BookArt Positivo_B-N.png" alt="BookArt Logo">
                     </a>
                     <h1 class="site-title">BookArt</h1>
                 </div>
@@ -227,7 +227,7 @@
         <!-- FOOTER ARTESANAL -->
         <footer>
             <div class="footer-content">
-                <img src="../img/Logo.png" alt="BookArt Logo" class="footer-logo">
+                <img src="../img/Logo/BookArt Negativo_B-N.png" alt="BookArt Logo" class="footer-logo">
                 <p class="footer-text">
                     Encuadernaciones artesanales hechas con pasión<br>
                     Cada libreta es única, como tus ideas
