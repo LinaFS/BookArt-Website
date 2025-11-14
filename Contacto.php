@@ -291,6 +291,8 @@
 
         <!-- JAVASCRIPT -->
         <script>
+            // REEMPLAZAR el bloque <script> en Contacto.php
+
             // Toggle Menu
             function toggleMenu() {
                 const nav = document.getElementById('mainNav');
@@ -307,36 +309,64 @@
                 }
             }
 
-            // Modal de mensajes
-            if (document.getElementById('mensaje').textContent.trim() !== '') {
-                document.getElementById('warning').showModal();
+            // Función auxiliar para mostrar diálogo
+            function mostrarDialog(mensaje, tipo = 'info') {
+                const dialog = document.getElementById('warning');
+                const mensajeEl = document.getElementById('mensaje');
+                
+                if (dialog && mensajeEl) {
+                    mensajeEl.textContent = mensaje;
+                    mensajeEl.className = tipo;
+                    dialog.showModal();
+                }
             }
 
-            document.getElementById('btnAcept').addEventListener('click', function() {
-                document.getElementById('warning').close();
+            // Modal de mensajes
+            document.addEventListener('DOMContentLoaded', function() {
+                const mensajeElement = document.getElementById('mensaje');
+                const warningDialog = document.getElementById('warning');
+                const btnAcept = document.getElementById('btnAcept');
+                
+                if (mensajeElement && mensajeElement.textContent.trim() !== '') {
+                    warningDialog.showModal();
+                }
+
+                if (btnAcept) {
+                    btnAcept.addEventListener('click', function() {
+                        warningDialog.close();
+                    });
+                }
             });
 
             // Validación del formulario
             const form = document.querySelector('.contact-form');
-            form.addEventListener('submit', function(e) {
-                const inputs = form.querySelectorAll('input[required], textarea[required]');
-                let valid = true;
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const inputs = form.querySelectorAll('input[required], textarea[required]');
+                    let valid = true;
+                    let mensajesError = [];
 
-                inputs.forEach(input => {
-                    if (!input.value.trim()) {
-                        valid = false;
-                        input.classList.add('error');
-                    } else {
-                        input.classList.remove('error');
-                        input.classList.add('valid');
+                    inputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            valid = false;
+                            input.classList.add('error');
+                            
+                            const label = form.querySelector(`label[for="${input.id}"]`);
+                            if (label) {
+                                mensajesError.push(label.textContent.replace('✎', '').trim());
+                            }
+                        } else {
+                            input.classList.remove('error');
+                            input.classList.add('valid');
+                        }
+                    });
+
+                    if (!valid) {
+                        e.preventDefault();
+                        mostrarDialog('⚠️ Por favor, completa todos los campos requeridos:\n' + mensajesError.join(', '), 'error');
                     }
                 });
-
-                if (!valid) {
-                    e.preventDefault();
-                    alert('Por favor, completa todos los campos requeridos');
-                }
-            });
+            }
 
             // Remover clase de error al escribir
             document.querySelectorAll('input, textarea').forEach(input => {

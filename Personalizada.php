@@ -17,6 +17,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Martian+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
         <script src="../JavaScript/userMenu.js"></script>
+        <script src="../JavaScript/personalizada.js"></script>
     </head>
 
     <body>
@@ -282,88 +283,6 @@
                 </div>
             </div>
         </footer>
-
-        <!-- JAVASCRIPT -->
-        <script>
-            // Toggle Menu
-            function toggleMenu() {
-                const nav = document.getElementById('mainNav');
-                const toggle = document.getElementById('menuToggle');
-                nav.classList.toggle('active');
-                
-                const icon = toggle.querySelector('.material-symbols-outlined');
-                icon.textContent = nav.classList.contains('active') ? 'close' : 'menu';
-                
-                if (nav.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
-            }
-
-            // Seleccionar opción de encuadernación
-            document.querySelectorAll('.binding-option input[type="radio"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    document.getElementById('opcFinal').value = this.value;
-                });
-            });
-
-            // Preview de imagen
-            document.getElementById('portada').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        document.getElementById('previewImg').src = e.target.result;
-                        document.getElementById('imagePreview').style.display = 'block';
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Remover preview
-            function removePreview() {
-                document.getElementById('portada').value = '';
-                document.getElementById('imagePreview').style.display = 'none';
-                document.getElementById('previewImg').src = '';
-            }
-
-            // Color picker sincronizado
-            document.getElementById('color').addEventListener('input', function(e) {
-                document.querySelector('.color-picker-input').value = e.target.value;
-            });
-
-            // Modal de mensajes
-            if (document.getElementById('mensaje').textContent.trim() !== '') {
-                document.getElementById('warning').showModal();
-            }
-
-            document.getElementById('btnAcept').addEventListener('click', function() {
-                document.getElementById('warning').close();
-            });
-
-            // Cerrar menú al hacer clic en enlaces
-            document.querySelectorAll('.nav-links a, .btn-session').forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        const nav = document.getElementById('mainNav');
-                        nav.classList.remove('active');
-                        document.body.style.overflow = '';
-                    }
-                });
-            });
-
-            // Cerrar menú al hacer clic fuera
-            document.addEventListener('click', function(e) {
-                const nav = document.getElementById('mainNav');
-                const toggle = document.getElementById('menuToggle');
-                
-                if (nav.classList.contains('active') && 
-                    !nav.contains(e.target) && 
-                    !toggle.contains(e.target)) {
-                    toggleMenu();
-                }
-            });
-        </script>
+        
     </body>
 </html>

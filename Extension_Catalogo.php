@@ -51,6 +51,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Martian+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
         <script src="../JavaScript/userMenu.js"></script>
+        <script src="../JavaScript/extensionCatalogo.js"></script>
     </head>
     
     <body>
@@ -163,7 +164,7 @@
 
                     <div class="product-detail-actions">
                         <?php if (isset($_SESSION['usuario'])): ?>
-                            <button class="btn-add-cart" onclick="agregarAlCarritoCatalogo(<?php echo $id_producto; ?>)">
+                            <button class="btn-add-cart" onclick="agregarAlCarritoCatalogo(<?php echo $id_producto; ?>, event)">
                                 <span class="material-symbols-outlined">shopping_cart</span>
                                 Agregar al carrito
                             </button>
@@ -223,6 +224,14 @@
                 </div>
             </div>
         </section>
+
+        <!-- Modal Alerta -->
+        <dialog id="warning">
+            <p id="mensaje"></p>
+            <div class="btnModal">
+                <button id="btnAcept">Aceptar</button>
+            </div>
+        </dialog>
         
         <!-- FOOTER ARTESANAL -->
         <footer>
@@ -237,80 +246,5 @@
                 </div>
             </div>
         </footer>
-
-        <!-- JAVASCRIPT -->
-        <script>
-            function toggleMenu() {
-                const nav = document.getElementById('mainNav');
-                const toggle = document.getElementById('menuToggle');
-                nav.classList.toggle('active');
-                
-                const icon = toggle.querySelector('.material-symbols-outlined');
-                icon.textContent = nav.classList.contains('active') ? 'close' : 'menu';
-                
-                if (nav.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
-            }
-            
-            document.querySelectorAll('.nav-links a, .btn-session').forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        const nav = document.getElementById('mainNav');
-                        nav.classList.remove('active');
-                        document.body.style.overflow = '';
-                    }
-                });
-            });
-            
-            document.addEventListener('click', function(e) {
-                const nav = document.getElementById('mainNav');
-                const toggle = document.getElementById('menuToggle');
-                
-                if (nav.classList.contains('active') && 
-                    !nav.contains(e.target) && 
-                    !toggle.contains(e.target)) {
-                    toggleMenu();
-                }
-            });
-
-            function agregarAlCarrito(tipo, id) {
-                <?php if (!isset($_SESSION['usuario'])): ?>
-                    window.location.href = 'Inicio_sesion.php?origen=Extension_Catalogo&id=<?php echo $id_producto; ?>';
-                    return;
-                <?php endif; ?>
-                
-                fetch('../PHP/carrito_actions.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=add&tipo=${tipo}&id=${id}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Mostrar mensaje de éxito
-                        const btn = event.target.closest('button');
-                        const originalHTML = btn.innerHTML;
-                        btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> ¡Agregado!';
-                        btn.style.background = 'var(--verde-bookart)';
-                        
-                        setTimeout(() => {
-                            btn.innerHTML = originalHTML;
-                            btn.style.background = '';
-                        }, 2000);
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al agregar al carrito');
-                });
-            }
-        </script>
     </body>
 </html>

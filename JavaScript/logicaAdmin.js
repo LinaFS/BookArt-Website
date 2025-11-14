@@ -4,6 +4,28 @@ let modoEdicion = false;
 let pedidosData = [];
 let filtroActualEstatus = 'pendiente';
 
+// FUNCIÓN DE ALERTA PERSONALIZADA PARA ADMIN
+// Agregar al INICIO de logicaAdmin.js (después de las variables globales)
+
+function mostrarAlerta(mensaje, tipo = 'info') {
+    const modal = document.getElementById('warning');
+    const mensajeEl = document.getElementById('mensaje');
+    
+    if (modal && mensajeEl) {
+        mensajeEl.textContent = mensaje;
+        mensajeEl.className = tipo; // 'success', 'error', 'warning', 'info'
+        
+        modal.showModal();
+        
+        // Auto-cerrar después de 3 segundos para success
+        if (tipo === 'success') {
+            setTimeout(() => {
+                modal.close();
+            }, 3000);
+        }
+    }
+}
+
 // ===== INICIALIZACIÓN AL CARGAR LA PÁGINA =====
 document.addEventListener('DOMContentLoaded', function() {
     // Cargar principal por defecto
@@ -302,9 +324,15 @@ function editarProducto(id) {
 
 function eliminarProducto(id, nombre) {
     productoEliminarId = id;
-    document.getElementById('mensajeConfirmar').textContent = 
-        `¿Estás seguro de eliminar el producto "${nombre}"? Esta acción no se puede deshacer.`;
-    document.getElementById('modalConfirmar').showModal();
+    
+    // Usar modal personalizado en lugar de alert
+    const modalConfirmar = document.getElementById('modalConfirmar');
+    const mensajeConfirmar = document.getElementById('mensajeConfirmar');
+    
+    if (modalConfirmar && mensajeConfirmar) {
+        mensajeConfirmar.textContent = `¿Estás seguro de eliminar el producto "${nombre}"? Esta acción no se puede deshacer.`;
+        modalConfirmar.showModal();
+    }
 }
 
 function confirmarAccion() {
@@ -366,7 +394,6 @@ function previsualizarImagen(event) {
         reader.readAsDataURL(file);
     }
 }
-
 // ===== SISTEMA DE ALERTAS =====
 function mostrarAlerta(mensaje, tipo) {
     const modal = document.getElementById('warning');
