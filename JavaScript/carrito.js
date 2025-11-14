@@ -1,18 +1,17 @@
-// REEMPLAZAR TODO EL BLOQUE <script> al final de Carrito.php
-
 function toggleMenu() {
     const nav = document.getElementById('mainNav');
     const toggle = document.getElementById('menuToggle');
+    
+    if (!nav || !toggle) return;
+    
     nav.classList.toggle('active');
     
     const icon = toggle.querySelector('.material-symbols-outlined');
-    icon.textContent = nav.classList.contains('active') ? 'close' : 'menu';
-    
-    if (nav.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
-    } else {
-        document.body.style.overflow = '';
+    if (icon) {
+        icon.textContent = nav.classList.contains('active') ? 'close' : 'menu';
     }
+    
+    document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
 }
 
 // Función auxiliar para mostrar diálogo personalizado
@@ -40,26 +39,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Diálogo de confirmación personalizado para eliminar
-// --- Dialog ELIMINAR ---
+// --- Variables globales ---
 let itemToRemove = null;
 
+// --- FUNCIÓN PARA ABRIR MODAL DE ELIMINACIÓN ---
 function removeItem(id, tipo) {
     itemToRemove = { id, tipo };
-    document.getElementById('deleteDialog').showModal();
+    const dialog = document.getElementById('deleteDialog');
+    if (dialog) {
+        dialog.showModal();
+    }
 }
 
-document.getElementById('btnCancelDelete').addEventListener('click', () => {
-    document.getElementById('deleteDialog').close();
-});
+// --- FUNCIÓN PARA CANCELAR ELIMINACIÓN ---
+function cancelarEliminacion() {
+    const dialog = document.getElementById('deleteDialog');
+    if (dialog) {
+        dialog.close();
+    }
+    itemToRemove = null;
+}
 
-document.getElementById('btnConfirmDelete').addEventListener('click', confirmarEliminacion);
-
+// --- FUNCIÓN PARA CONFIRMAR ELIMINACIÓN ---
 function confirmarEliminacion() {
     if (!itemToRemove) return;
 
     const { id, tipo } = itemToRemove;
+    
+    // Cerrar el modal INMEDIATAMENTE
+    const dialog = document.getElementById('deleteDialog');
+    if (dialog) {
+        dialog.close();
+    }
 
+    // Hacer la petición al servidor
     fetch('../PHP/carrito_actions.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -67,8 +80,6 @@ function confirmarEliminacion() {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById('deleteDialog').close();
-
         if (data.success) {
             mostrarDialog('Producto eliminado del carrito', 'success');
             setTimeout(() => location.reload(), 1200);
@@ -79,14 +90,21 @@ function confirmarEliminacion() {
     .catch(err => {
         console.error(err);
         mostrarDialog('Error de conexión al eliminar.', 'error');
+    })
+    .finally(() => {
+        itemToRemove = null;
     });
 }
-// Diálogo de confirmación para realizar pedido
 
+// --- FUNCIÓN PARA REALIZAR PEDIDO ---
 function realizarPedido() {
-    document.getElementById('confirmDialog').showModal();
+    const dialog = document.getElementById('confirmDialog');
+    if (dialog) {
+        dialog.showModal();
+    }
 }
 
+// --- FUNCIÓN PARA CONFIRMAR PEDIDO ---
 function confirmarPedido() {
     const dialog = document.getElementById('confirmDialog');
     
@@ -104,7 +122,9 @@ function confirmarPedido() {
         return response.json();
     })
     .then(data => {
-        dialog.close();
+        if (dialog) {
+            dialog.close();
+        }
         
         if (data.success) {
             window.location.href = 'MisPedidos.php?mensaje=' + 
@@ -116,7 +136,9 @@ function confirmarPedido() {
     })
     .catch(error => {
         console.error('Error completo:', error);
-        dialog.close();
+        if (dialog) {
+            dialog.close();
+        }
         mostrarDialog('❌ Error de conexión. Por favor, intenta nuevamente.', 'error');
     });
 }

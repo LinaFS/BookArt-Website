@@ -77,7 +77,6 @@
         <link rel="stylesheet" href="../CSS/styleCarrito.css">
         <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Martian+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-        <script src="../JavaScript/userMenu.js"></script>
     </head>
 
     <body>
@@ -316,12 +315,14 @@
                 </p>
 
                 <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                    <button id="btnCancelDelete"
+                    <button onclick="cancelarEliminacion()"
+                            type="button"
                             style="flex: 1; padding: 1rem; background: var(--marron-texto); color: white; border: none; cursor: pointer; font-family: var(--font-body); font-weight: 700; border-radius: 8px;">
                         Cancelar
                     </button>
 
-                    <button id="btnConfirmDelete" onclick="confirmarEliminacion();"
+                    <button onclick="confirmarEliminacion()"
+                            type="button"
                             style="flex: 1; padding: 1rem; background: var(--rojo-bookart, #c0392b); color: white; border: none; cursor: pointer; font-family: var(--font-body); font-weight: 700; border-radius: 8px;">
                         Eliminar
                     </button>
@@ -341,8 +342,9 @@
                 </div>
             </div>
         </dialog>
+        <script src="../JavaScript/carrito.js"></script>
+        <script src="../JavaScript/userMenu.js"></script>
     </body>
-    <script src="../JavaScript/carrito.js"></script>
 </html>
 
 <?php mysqli_close($conexion); ?>
