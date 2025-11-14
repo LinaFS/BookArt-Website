@@ -1,6 +1,6 @@
 <?php
     session_start();
-    if (!isset($_SESSION["usuario"])&&!isset($permiso_id["2"])){
+    if (isset($_SESSION["usuario"])&&!isset($permiso_id["1"])){
         session_destroy();
     }
 ?>
