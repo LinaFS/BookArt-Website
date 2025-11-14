@@ -113,6 +113,36 @@ function setupFormularios() {
             document.getElementById('warning').close();
         });
     }
+
+    // Formulario de asignar precio
+const formPrecio = document.getElementById('formAsignarPrecio');
+if (formPrecio) {
+    formPrecio.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('action', 'asignar_precio');
+        
+        fetch('../PHP/admin_pedidos.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                mostrarAlerta(data.message, 'success');
+                cerrarModalPrecio();
+                cargarPedidos();
+            } else {
+                mostrarAlerta(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al asignar precio', 'error');
+        });
+    });
+}
 }
 
 // Actualizar fecha y hora
@@ -459,7 +489,7 @@ function mostrarPedidos(pedidos) {
     }
     
     if(pedidos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="empty">No hay pedidos con este estatus</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">No hay pedidos con este estatus</td></tr>';
         return;
     }
     
@@ -478,6 +508,35 @@ function mostrarPedidos(pedidos) {
             case 'proceso': estatusIcon = '🔨'; break;
             case 'terminado': estatusIcon = '🎉'; break;
             case 'entregado': estatusIcon = '📦'; break;
+        }
+        
+        // Determinar el precio a mostrar
+        let precioHTML = '';
+        if (isCatalogo) {
+            // Catálogo siempre tiene precio fijo
+            precioHTML = `<span style="color: var(--primary); font-weight: bold; font-size: 1.2rem;">$${parseFloat(pedido.producto_precio || 0).toFixed(2)}</span>`;
+        } else {
+            // Personalizada: mostrar precio si existe, sino "A cotizar"
+            if (pedido.producto_precio && pedido.producto_precio > 0) {
+                precioHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <span style="color: var(--primary); font-weight: bold; font-size: 1.2rem;">$${parseFloat(pedido.producto_precio).toFixed(2)}</span>
+                        <button class="btn-icon" onclick="abrirModalAsignarPrecio('${pedido.id}')" title="Cambiar precio" style="background: #fff3cd; color: #856404;">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                    </div>
+                `;
+            } else {
+                precioHTML = `
+                    <button onclick="abrirModalAsignarPrecio('${pedido.id}')" 
+                            style="padding: 0.8rem 1.2rem; background: var(--amarillo-bookart); color: var(--marron-texto); border: 3px solid var(--marron-texto); cursor: pointer; font-family: var(--font-body); font-weight: 700; border-radius: 8px; transition: all 0.3s ease; box-shadow: 3px 3px 0px var(--marron-texto); display: flex; align-items: center; gap: 0.5rem;"
+                            onmouseover="this.style.transform='translate(2px, 2px)'; this.style.boxShadow='1px 1px 0px var(--marron-texto)';"
+                            onmouseout="this.style.transform=''; this.style.boxShadow='3px 3px 0px var(--marron-texto)';">
+                        <span class="material-symbols-outlined">payments</span>
+                        Asignar Precio
+                    </button>
+                `;
+            }
         }
         
         return `
@@ -499,6 +558,7 @@ function mostrarPedidos(pedidos) {
                 ${pedido.fecha}<br>
                 <small style="color: var(--text-secondary);">${pedido.hora}</small>
             </td>
+            <td style="text-align: center;">${precioHTML}</td>
             <td>
                 <span class="pedido-estatus ${estatusClass}">
                     ${estatusIcon} ${pedido.estatus}
@@ -519,6 +579,22 @@ function mostrarPedidos(pedidos) {
     }).join('');
     
     console.log('✅ Tabla actualizada');
+}
+
+// Función para abrir modal de asignar precio
+function abrirModalAsignarPrecio(idPedido) {
+    document.getElementById('pedidoIdPrecio').value = idPedido;
+    document.getElementById('precioPedido').value = '';
+    document.getElementById('modalAsignarPrecio').showModal();
+    
+    // Enfocar el input
+    setTimeout(() => {
+        document.getElementById('precioPedido').focus();
+    }, 100);
+}
+
+function cerrarModalPrecio() {
+    document.getElementById('modalAsignarPrecio').close();
 }
 
 function filtrarPedidos() {
