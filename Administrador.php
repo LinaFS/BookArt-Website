@@ -374,6 +374,9 @@
                     <textarea id="mensajeAdmin" name="mensaje" rows="4" 
                             placeholder="Agrega un mensaje que el cliente verá..."
                             style="width: 100%; padding: 1rem; border: 3px solid var(--marron-texto); font-family: var(--font-body);"></textarea>
+                    <p style="text-align: right; color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.3rem;">
+                        <span id="mensajeCounter">0</span>/250 caracteres
+                    </p>
                 </div>
 
                 <div class="modal-footer" style="margin-top: 2rem;">
@@ -428,5 +431,27 @@
                 </div>
             </form>
         </dialog>
+        <script>
+            // Agregar contador de caracteres al textarea de mensaje
+            document.addEventListener('DOMContentLoaded', function() {
+                const mensajeTextarea = document.getElementById('mensajeAdmin');
+                const counter = document.getElementById('mensajeCounter');
+                
+                if (mensajeTextarea && counter) {
+                    mensajeTextarea.addEventListener('input', function() {
+                        counter.textContent = this.value.length;
+                        
+                        // Cambiar color si se acerca al límite
+                        if (this.value.length > 230) {
+                            counter.style.color = 'var(--rojo-bookart)';
+                        } else if (this.value.length > 200) {
+                            counter.style.color = 'var(--amarillo-bookart)';
+                        } else {
+                            counter.style.color = 'var(--text-secondary)';
+                        }
+                    });
+                }
+            });
+        </script>
     </body>
 </html>

@@ -277,6 +277,45 @@
     background: #C91E2E; /* rojo más oscuro */
 }
 
+.mensaje-admin {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: var(--crema-papel);
+    border-left: 6px solid var(--verde-bookart);
+    border: 4px solid var(--marron-texto);
+    border-left-width: 6px;
+    border-radius: 8px;
+}
+
+.mensaje-admin-header {
+    font-weight: 700;
+    color: var(--verde-bookart);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.mensaje-admin-header .material-symbols-outlined {
+    font-size: 1.3rem;
+}
+
+.mensaje-admin p {
+    color: var(--marron-texto);
+    line-height: 1.7;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin: 0;
+    font-size: 1rem;
+    text-align: left; /* Asegurar alineación a la izquierda */
+}
+
+.mensaje-admin p strong {
+    color: var(--verde-bookart);
+    font-weight: 700;
+}
+
 /* Estilos responsive */
 @media (max-width: 768px) {
     .pedido-actions {

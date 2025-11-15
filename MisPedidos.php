@@ -36,6 +36,7 @@
                         p.fecha,
                         p.hora,
                         p.estatus,
+                        p.mensaje,
                         tp.descripcion as tipo_descripcion,
                         tp.id_tipoPedido,
                         CASE 
@@ -308,12 +309,16 @@
                                         Mensaje del administrador:
                                     </div>
                                     <p>
-                                        Nos pondremos en contacto contigo al correo <strong><?php echo htmlspecialchars($correoUsuario); ?></strong> 
-                                        para confirmar detalles de pago y entrega. ¡Gracias por tu preferencia!
+                                        <?php if (!empty($pedido['mensaje'])): ?>
+                                            <?php echo nl2br(htmlspecialchars($pedido['mensaje'])); ?>
+                                        <?php else: ?>
+                                            Nos pondremos en contacto contigo al correo <strong><?php echo htmlspecialchars($correoUsuario); ?></strong> 
+                                            para confirmar detalles de pago y entrega. ¡Gracias por tu preferencia!
+                                        <?php endif; ?>
                                     </p>
                                 </div>
                             <?php endif; ?>
-                            
+
                             <?php if ($estatus == 'declinado'): ?>
                                 <div class="mensaje-admin" style="border-left-color: var(--rojo-bookart);">
                                     <div class="mensaje-admin-header" style="color: var(--rojo-bookart);">
@@ -321,9 +326,37 @@
                                         Información importante:
                                     </div>
                                     <p>
-                                        Lo sentimos, no pudimos procesar tu pedido tal como fue solicitado. 
-                                        Te contactaremos al correo <strong><?php echo htmlspecialchars($correoUsuario); ?></strong> 
-                                        para ofrecerte alternativas viables.
+                                        <?php if (!empty($pedido['mensaje'])): ?>
+                                            <?php echo nl2br(htmlspecialchars($pedido['mensaje'])); ?>
+                                        <?php else: ?>
+                                            Lo sentimos, no pudimos procesar tu pedido tal como fue solicitado. 
+                                            Te contactaremos al correo <strong><?php echo htmlspecialchars($correoUsuario); ?></strong> 
+                                            para ofrecerte alternativas viables.
+                                        <?php endif; ?>
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($estatus == 'entregado' && !empty($pedido['mensaje'])): ?>
+                                <div class="mensaje-admin" style="border-left-color: var(--verde-bookart);">
+                                    <div class="mensaje-admin-header" style="color: var(--verde-bookart);">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                        Mensaje de entrega:
+                                    </div>
+                                    <p>
+                                        <?php echo nl2br(htmlspecialchars($pedido['mensaje'])); ?>
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($estatus == 'visto' && !empty($pedido['mensaje'])): ?>
+                                <div class="mensaje-admin" style="border-left-color: var(--azul-bookart);">
+                                    <div class="mensaje-admin-header" style="color: var(--azul-bookart);">
+                                        <span class="material-symbols-outlined">visibility</span>
+                                        Actualización:
+                                    </div>
+                                    <p>
+                                        <?php echo nl2br(htmlspecialchars($pedido['mensaje'])); ?>
                                     </p>
                                 </div>
                             <?php endif; ?>

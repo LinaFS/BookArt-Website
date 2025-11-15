@@ -195,8 +195,11 @@ function cambiarEstatus($conexion) {
         return;
     }
     
-    // Actualizar en la tabla pedidos
-    $query = "UPDATE pedidos SET estatus = '$nuevoEstatus' WHERE idPedido = '$id'";
+    // Actualizar en la tabla pedidos CON el mensaje
+    $query = "UPDATE pedidos 
+              SET estatus = '$nuevoEstatus', 
+                  mensaje = '$mensaje'
+              WHERE idPedido = '$id'";
     
     $result = mysqli_query($conexion, $query);
     
@@ -212,9 +215,14 @@ function cambiarEstatus($conexion) {
             case 'entregado': $estatusTexto = 'Entregado'; break;
         }
         
+        $mensajeRespuesta = 'Estatus actualizado a: ' . $estatusTexto;
+        if (!empty($mensaje)) {
+            $mensajeRespuesta .= ' (Mensaje enviado al cliente)';
+        }
+        
         echo json_encode([
             'success' => true, 
-            'message' => 'Estatus actualizado a: ' . $estatusTexto
+            'message' => $mensajeRespuesta
         ]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error al actualizar estatus: ' . mysqli_error($conexion)]);
