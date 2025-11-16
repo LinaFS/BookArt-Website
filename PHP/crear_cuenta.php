@@ -34,13 +34,24 @@
         if(mysqli_num_rows($verify_email) > 0){
             $drop = "DELETE FROM usuario WHERE id_usuario='$idusuario'";
             mysqli_query($conexion, $drop);
-            echo "
-            <script>
-                alert('Correo ya registrado');
-                window.location='../Inicio_sesion.php';
-            </script>
-            ";
-            exit; // Detener la ejecución del código si el correo está registrado
+            ?>
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <link rel="stylesheet" href="../CSS/styleSesion.css">
+            </head>
+            <body>
+                <dialog id="warning" open>
+                    <p id="mensaje" class="error">❌ Este correo ya está registrado</p>
+                    <div class="btnModal">
+                        <button id="btnAcept" onclick="window.location='../Inicio_sesion.php'">Aceptar</button>
+                    </div>
+                </dialog>
+            </body>
+            </html>
+            <?php
+            exit;
         }
 
         // Verificar si el nombre de usuario ya está registrado
@@ -48,24 +59,47 @@
         if(mysqli_num_rows($verify_user) > 0){
             $drop = "DELETE FROM usuario WHERE id_usuario='$idusuario'";
             mysqli_query($conexion, $drop);
-            echo "
-            <script>
-                alert('Usuario ya registrado');
-                window.location='../Inicio_sesion.php';
-            </script>
-            ";
-            exit; // Detener la ejecución del código si el usuario está registrado
+            ?>
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <link rel="stylesheet" href="../CSS/styleSesion.css">
+            </head>
+            <body>
+                <dialog id="warning" open>
+                    <p id="mensaje" class="error">❌ Este nombre de usuario ya está registrado</p>
+                    <div class="btnModal">
+                        <button id="btnAcept" onclick="window.location='../Inicio_sesion.php'">Aceptar</button>
+                    </div>
+                </dialog>
+            </body>
+            </html>
+            <?php
+            exit;
         }
 
         // Insertar datos de la cuenta en la tabla 'cuenta'
         $execute_cuenta = mysqli_query($conexion, $query_cuenta);
         if($execute_cuenta){
-            echo "
-            <script>
-                alert('¡Cuenta creada!');
-                window.location='../Inicio_sesion.php';
-            </script>
-            ";
+            ?>
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <link rel="stylesheet" href="../CSS/styleSesion.css">
+            </head>
+            <body>
+                <dialog id="warning" open>
+                    <p id="mensaje" class="success">✅ ¡Cuenta creada exitosamente!</p>
+                    <div class="btnModal">
+                        <button id="btnAcept" onclick="window.location='../Inicio_sesion.php'">Aceptar</button>
+                    </div>
+                </dialog>
+            </body>
+            </html>
+            <?php
+            exit;
         } else {
             echo "Error en crear cuenta: " . mysqli_error($conexion);
         }
@@ -75,4 +109,3 @@
 
     mysqli_close($conexion);
 ?>
-

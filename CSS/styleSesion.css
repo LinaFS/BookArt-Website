@@ -3,6 +3,21 @@
    Identidad de marca artesanal
    =================================== */
 
+:root {
+    --amarillo-bookart: #FBD216;
+    --verde-bookart: #1E9332;
+    --rojo-bookart: #ED2939;
+    --azul-bookart: #0033AD;
+    --blanco: #FFFFFF;
+    --amarillo-claro: #FFDE59;
+    --amarillo-oscuro: #E8C20A;
+    --verde-oscuro: #166B25;
+    --marron-texto: #4A3830;
+    --crema-papel: #FFF9F0;
+    --font-display: 'Chewy', cursive;
+    --font-body: 'Martian Mono', monospace;
+}
+
 body {
     background: #fef9e7;
     font-family: var(--font-body);
@@ -489,6 +504,7 @@ body::before {
     position: relative;
     display: inline-block;
     margin-bottom: 1rem;
+    margin-top: 1.5rem;
 }
 
 .cNombre, .cApellidoP, .cApellidoM {
@@ -686,14 +702,107 @@ body::before {
    =================================== */
 
 .etiquetaUsuario, .etiquetaContra, .etiquetaContra2, .etiquetaCorreo,
-.etiquetaCoincidenciaC, .etiquetaTel, .etiquetaPaterno, .etiquetaMaterno,
+.etiquetaTel, .etiquetaPaterno, .etiquetaMaterno,
 .etiquetaNombre, .etiquetaError, .etiquetaAño {
-    color: var(--rojo-bookart);
-    font-size: 0.85rem;
-    font-weight: 600;
+    color: var(--rojo-bookart) !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
     position: absolute;
     margin-top: 0.3rem;
     visibility: hidden;
+    width: 100%; 
+    max-width: 280px; 
+    word-wrap: break-word;
+    line-height: 1.3;
+}
+
+.etiquetaCoincidenciaC{
+    color: var(--rojo-bookart) !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    position: absolute;
+    margin-top: 2rem;
+    visibility: hidden;
+    width: 100%; 
+    max-width: 280px; 
+    word-wrap: break-word;
+    line-height: 1.3;
+}
+
+/* DIALOG PERSONALIZADO - ESTILOS COMPLETOS */
+#warning {
+    border: none;
+    border-radius: 15px;
+    padding: 0;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    max-width: 450px;
+    min-width: 350px;
+    background: var(--crema-papel);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0; /* IMPORTANTE: quitar margin auto */
+}
+
+#warning::backdrop {
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(5px);
+}
+
+#warning #mensaje {
+    padding: 2rem 2rem 1.5rem 2rem;
+    font-size: 1.1rem;
+    color: var(--marron-texto);
+    text-align: center;
+    line-height: 1.6;
+    margin: 0;
+    font-family: var(--font-body);
+}
+
+/* Estilos por tipo de mensaje */
+#warning #mensaje.error {
+    color: var(--rojo-bookart);
+    border-left: 5px solid var(--rojo-bookart);
+}
+
+#warning #mensaje.success {
+    color: var(--verde-bookart);
+    border-left: 5px solid var(--verde-bookart);
+}
+
+#warning #mensaje.warning {
+    color: var(--amarillo-oscuro);
+    border-left: 5px solid var(--amarillo-bookart);
+}
+
+/* CONTENEDOR DEL BOTÓN */
+#warning .btnModal {
+    padding: 0 2rem 2rem 2rem;
+    text-align: center;
+    display: block; /* AGREGAR ESTO */
+}
+
+/* BOTÓN ACEPTAR */
+#warning #btnAcept {
+    padding: 0.8rem 2rem;
+    background: var(--verde-bookart);
+    color: white;
+    border: 3px solid var(--marron-texto);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 3px 3px 0px var(--marron-texto);
+    display: inline-block; /* AGREGAR ESTO */
+}
+
+#warning #btnAcept:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px var(--marron-texto);
+    background: var(--verde-oscuro);
 }
 
 /* ===================================

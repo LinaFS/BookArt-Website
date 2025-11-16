@@ -462,4 +462,26 @@ if (telInput) {
     });
 }
 
+// Función para mostrar dialog personalizado
+function mostrarAlerta(mensaje, tipo = 'info') {
+    const dialog = document.getElementById('warning');
+    const mensajeEl = document.getElementById('mensaje');
+    
+    if (dialog && mensajeEl) {
+        mensajeEl.textContent = mensaje;
+        mensajeEl.className = tipo; // 'success', 'error', 'warning', 'info'
+        dialog.showModal();
+    }
+}
+
+// Event listener para cerrar el dialog
+document.addEventListener('DOMContentLoaded', function() {
+    const btnAcept = document.getElementById('btnAcept');
+    if (btnAcept) {
+        btnAcept.addEventListener('click', function() {
+            document.getElementById('warning').close();
+        });
+    }
+});
+
 console.log('✅ BookArt - Sistema de sesión cargado correctamente');

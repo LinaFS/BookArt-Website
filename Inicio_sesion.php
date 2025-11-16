@@ -209,5 +209,11 @@
                 </div>
             </dialog>
         </main>
+        <dialog id="warning">
+            <p id="mensaje"></p>
+            <div class="btnModal">
+                <button id="btnAcept">Aceptar</button>
+            </div>
+        </dialog>
     </body>
 </html>

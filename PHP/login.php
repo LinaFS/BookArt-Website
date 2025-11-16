@@ -27,11 +27,25 @@
         }
         
     }else{
-        echo"
-            <script>
-                alert('Error al iniciar sesión, verifique sus datos');
-                window.location='../Inicio_sesion.php';
-            </script>
-        ";
+        ?>
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="../CSS/reset.css">
+            <link rel="stylesheet" href="../CSS/styleSesion.css">
+        </head>
+        <body>
+            <dialog id="warning" open>
+                <p id="mensaje" class="error">❌ Error al iniciar sesión. Verifica tu usuario y contraseña</p>
+                <div class="btnModal">
+                    <button id="btnAcept" onclick="window.location='../Inicio_sesion.php'">Aceptar</button>
+                </div>
+            </dialog>
+        </body>
+        </html>
+        <?php
+        exit;
     }
 ?>
