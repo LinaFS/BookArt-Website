@@ -44,7 +44,6 @@
                             WHEN tp.id_tipoPedido = 2 THEN 'Libreta Personalizada'
                         END as nombre,
                         CASE 
-                            CASE 
                             WHEN tp.id_tipoPedido = 1 THEN c.precio
                             WHEN tp.id_tipoPedido = 2 THEN COALESCE(per.precio, 0)
                         END as precio,
