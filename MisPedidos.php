@@ -222,8 +222,9 @@
                             <div>
                                 <div class="pedido-precio">
                                     <?php 
-                                    // CORRECCIÓN DE SINTAXIS: Se cerró la etiqueta PHP de forma correcta
                                     if ($isCatalogo) {
+                                        echo '$' . number_format($pedido['precio'], 2);
+                                    } elseif ($pedido['precio'] > 0) {
                                         echo '$' . number_format($pedido['precio'], 2);
                                     } else {
                                         echo 'A cotizar';
