@@ -84,6 +84,7 @@
     <link rel="stylesheet" href="../CSS/styleMisPedidos.css">
     <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Martian+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="../JavaScript/funcionModal.js" defer></script>
     <script src="../JavaScript/misPedidos.js" defer></script>
     <script src="../JavaScript/userMenu.js" defer></script>
 </head>

@@ -1,39 +1,52 @@
 <?php
-    include 'conexionBDD.php';
-    //creando al usuario
-    $nombre= $_POST['nombre'];
-    $paterno= $_POST['paterno'];
-    $materno= $_POST['materno'];
-    $tel= $_POST['tel'];
-    //para fecha de nacimiento:
-    $dia= $_POST['Dia'];
-    $mes= $_POST['Mes'];
-    $anio= $_POST['anio'];
-    //completando para la creación de la cuenta
-    $usuario= $_POST['usuario'];
-    $correo= $_POST['correo'];
-    $contra= $_POST['contrasena'];
-    $permiso=2;
-    //encriptar contraseña
-    $contra=hash("sha512", $contra);
+    require_once __DIR__ . '/conexionBDD.php';
+    if (!isset($conexion) || !$conexion) {
+        exit('Error de conexión a la base de datos.');
+    }
 
-    // Insertar datos del usuario en la tabla 'usuario'
+    $nombre = $_POST['nombre'];
+    $paterno = $_POST['paterno'];
+    $materno = $_POST['materno'];
+    $tel = $_POST['tel'];
+    $dia = $_POST['Dia'];
+    $mes = $_POST['Mes'];
+    $anio = $_POST['anio'];
+    $usuario = $_POST['usuario'];
+    $correo = $_POST['correo'];
+    $contra = $_POST['contrasena'];
+    $permiso = 2;
+
+    $contra = hash("sha512", $contra);
+
     $query_usuario = "INSERT INTO usuario(nombre, paterno, materno, tel, dia, mes, anio)
-            VALUES('$nombre','$paterno','$materno','$tel','$dia','$mes','$anio')";
+            VALUES(?, ?, ?, ?, ?, ?, ?)";
 
-    $execute_usuario = mysqli_query($conexion, $query_usuario);
+    if ($stmt = mysqli_prepare($conexion, $query_usuario)) {
+        mysqli_stmt_bind_param($stmt, "sssssss", $nombre, $paterno, $materno, $tel, $dia, $mes, $anio);
+        $execute_usuario = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        exit('Error interno al crear usuario.');
+    }
+
     $idusuario = mysqli_insert_id($conexion);
 
     if ($execute_usuario) {
-        echo "Creando cuenta... Último ID insertado: " . $idusuario;
-        $query_cuenta = "INSERT INTO cuenta(usuario, correo, contrasenia, permiso_id, usuario_id)
-            VALUES('$usuario','$correo','$contra','$permiso','$idusuario')";
+        $verify_email = "SELECT 1 FROM cuenta WHERE correo = ?";
+        if ($stmt = mysqli_prepare($conexion, $verify_email)) {
+            mysqli_stmt_bind_param($stmt, "s", $correo);
+            mysqli_stmt_execute($stmt);
+            $result_email = mysqli_stmt_get_result($stmt);
+            mysqli_stmt_close($stmt);
+        }
 
-        // Verificar si el correo electrónico ya está registrado
-        $verify_email = mysqli_query($conexion, "SELECT * FROM cuenta WHERE correo='$correo'");
-        if(mysqli_num_rows($verify_email) > 0){
-            $drop = "DELETE FROM usuario WHERE id_usuario='$idusuario'";
-            mysqli_query($conexion, $drop);
+        if ($result_email && mysqli_num_rows($result_email) > 0) {
+            $drop = "DELETE FROM usuario WHERE id_usuario = ?";
+            if ($stmt = mysqli_prepare($conexion, $drop)) {
+                mysqli_stmt_bind_param($stmt, "i", $idusuario);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_close($stmt);
+            }
             ?>
             <!DOCTYPE html>
             <html>
@@ -54,11 +67,21 @@
             exit;
         }
 
-        // Verificar si el nombre de usuario ya está registrado
-        $verify_user = mysqli_query($conexion, "SELECT * FROM cuenta WHERE usuario= '$usuario'");
-        if(mysqli_num_rows($verify_user) > 0){
-            $drop = "DELETE FROM usuario WHERE id_usuario='$idusuario'";
-            mysqli_query($conexion, $drop);
+        $verify_user = "SELECT 1 FROM cuenta WHERE usuario = ?";
+        if ($stmt = mysqli_prepare($conexion, $verify_user)) {
+            mysqli_stmt_bind_param($stmt, "s", $usuario);
+            mysqli_stmt_execute($stmt);
+            $result_user = mysqli_stmt_get_result($stmt);
+            mysqli_stmt_close($stmt);
+        }
+
+        if ($result_user && mysqli_num_rows($result_user) > 0) {
+            $drop = "DELETE FROM usuario WHERE id_usuario = ?";
+            if ($stmt = mysqli_prepare($conexion, $drop)) {
+                mysqli_stmt_bind_param($stmt, "i", $idusuario);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_close($stmt);
+            }
             ?>
             <!DOCTYPE html>
             <html>
@@ -79,9 +102,18 @@
             exit;
         }
 
-        // Insertar datos de la cuenta en la tabla 'cuenta'
-        $execute_cuenta = mysqli_query($conexion, $query_cuenta);
-        if($execute_cuenta){
+        $query_cuenta = "INSERT INTO cuenta(usuario, correo, contrasenia, permiso_id, usuario_id)
+            VALUES(?, ?, ?, ?, ?)";
+
+        if ($stmt = mysqli_prepare($conexion, $query_cuenta)) {
+            mysqli_stmt_bind_param($stmt, "sssii", $usuario, $correo, $contra, $permiso, $idusuario);
+            $execute_cuenta = mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+        } else {
+            exit('Error interno al crear cuenta.');
+        }
+
+        if ($execute_cuenta) {
             ?>
             <!DOCTYPE html>
             <html>

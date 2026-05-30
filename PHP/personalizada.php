@@ -2,7 +2,10 @@
 session_start();
 
 if (isset($_SESSION['usuario'])) {
-    include("conexionBDD.php");
+    require_once __DIR__ . '/conexionBDD.php';
+    if (!isset($conexion) || !$conexion) {
+        exit('Error de conexión a la base de datos.');
+    }
 
     $opcion = $_POST["opcFinal"];
     $tamanio = $_POST["tamaño"];
@@ -11,7 +14,6 @@ if (isset($_SESSION['usuario'])) {
     $descripcion = $_POST["descripcion"];
     $imagen = '';
 
-    // Procesar la imagen si existe
     if (isset($_FILES["portada"]) && $_FILES["portada"]["error"] === 0) {
         $file = $_FILES["portada"];
         $nombreImg = $file["name"];
@@ -19,12 +21,10 @@ if (isset($_SESSION['usuario'])) {
         $ruta_provisional = $file["tmp_name"];
         $carpeta = "../Portadas/";
 
-        // Crear carpeta si no existe
         if (!file_exists($carpeta)) {
             mkdir($carpeta, 0777, true);
         }
 
-        // Validar tipo
         $tiposPermitidos = ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'];
         if (in_array($tipoImg, $tiposPermitidos)) {
             $extension = pathinfo($nombreImg, PATHINFO_EXTENSION);
@@ -32,33 +32,48 @@ if (isset($_SESSION['usuario'])) {
             $src = $carpeta . $nombreUnico;
 
             if (move_uploaded_file($ruta_provisional, $src)) {
-                $imagen = $src; // Ruta guardada en BD
+                $imagen = $src;
             }
         }
     }
 
-    // Insertar en tabla personalizada
     $consult = "INSERT INTO personalizada (color, descripcion, portada, tam, tipo_encuadernacion, tipo_papel)
-                VALUES ('$color', '$descripcion', '$imagen', '$tamanio', '$opcion', '$tipoPapel')";
-    $execute_perso = mysqli_query($conexion, $consult);
+                VALUES (?, ?, ?, ?, ?, ?)";
+    if ($stmt = mysqli_prepare($conexion, $consult)) {
+        mysqli_stmt_bind_param($stmt, "ssssss", $color, $descripcion, $imagen, $tamanio, $opcion, $tipoPapel);
+        $execute_perso = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        $execute_perso = false;
+    }
 
     if ($execute_perso) {
         $idpersonalizada = mysqli_insert_id($conexion);
 
-        // Obtener ID del usuario
         $usuario = $_SESSION["usuario"];
-        $queryId = "SELECT id_cuenta FROM cuenta WHERE correo = '$usuario' OR usuario ='$usuario'";
-        $executeQuery = mysqli_query($conexion, $queryId);
+        $queryId = "SELECT id_cuenta FROM cuenta WHERE correo = ? OR usuario = ?";
+        if ($stmt = mysqli_prepare($conexion, $queryId)) {
+            mysqli_stmt_bind_param($stmt, "ss", $usuario, $usuario);
+            mysqli_stmt_execute($stmt);
+            $executeQuery = mysqli_stmt_get_result($stmt);
+            mysqli_stmt_close($stmt);
+        }
+
         $usuarioIdArray = mysqli_fetch_assoc($executeQuery);
         $usuarioId = $usuarioIdArray['id_cuenta'];
 
         $fecha = date('Y-m-d');
         $hora = date('H:i:s');
 
-        // Crear el pedido (tipo 2 = personalizada)
         $consultPedido = "INSERT INTO pedidos (fecha, hora, estatus, idPersonalizada, idTipoPedido, IdCuenta)
-                          VALUES ('$fecha', '$hora', 'carrito', '$idpersonalizada', 2, '$usuarioId')";
-        $execute_pedido = mysqli_query($conexion, $consultPedido);
+                          VALUES (?, ?, 'carrito', ?, 2, ?)";
+        if ($stmt = mysqli_prepare($conexion, $consultPedido)) {
+            mysqli_stmt_bind_param($stmt, "ssii", $fecha, $hora, $idpersonalizada, $usuarioId);
+            $execute_pedido = mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+        } else {
+            $execute_pedido = false;
+        }
 
         if ($execute_pedido) {
             mysqli_close($conexion);

@@ -8,22 +8,7 @@ let filtroActualEstatus = 'pendiente';
 // Agregar al INICIO de logicaAdmin.js (después de las variables globales)
 
 function mostrarAlerta(mensaje, tipo = 'info') {
-    const modal = document.getElementById('warning');
-    const mensajeEl = document.getElementById('mensaje');
-    
-    if (modal && mensajeEl) {
-        mensajeEl.textContent = mensaje;
-        mensajeEl.className = tipo; // 'success', 'error', 'warning', 'info'
-        
-        modal.showModal();
-        
-        // Auto-cerrar después de 3 segundos para success
-        if (tipo === 'success') {
-            setTimeout(() => {
-                modal.close();
-            }, 3000);
-        }
-    }
+    window.BookArtNotification.show(mensaje, tipo);
 }
 
 // ===== INICIALIZACIÓN AL CARGAR LA PÁGINA =====
@@ -426,19 +411,7 @@ function previsualizarImagen(event) {
 }
 // ===== SISTEMA DE ALERTAS =====
 function mostrarAlerta(mensaje, tipo) {
-    const modal = document.getElementById('warning');
-    const mensajeEl = document.getElementById('mensaje');
-    
-    if (modal && mensajeEl) {
-        mensajeEl.textContent = mensaje;
-        mensajeEl.className = tipo;
-        
-        modal.showModal();
-        
-        setTimeout(() => {
-            modal.close();
-        }, 3000);
-    }
+    window.BookArtNotification.show(mensaje, tipo);
 }
 
 // ===== GESTIÓN DE PEDIDOS =====

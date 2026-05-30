@@ -245,6 +245,7 @@
                 </div>
             </div>
         </footer>
+        <script src="../JavaScript/funcionModal.js"></script>
         <script src="../JavaScript/extensionCatalogo.js"></script>
     </body>
 </html>

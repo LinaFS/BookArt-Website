@@ -342,6 +342,7 @@
                 </div>
             </div>
         </dialog>
+        <script src="../JavaScript/funcionModal.js"></script>
         <script src="../JavaScript/carrito.js"></script>
         <script src="../JavaScript/userMenu.js"></script>
     </body>

@@ -83,12 +83,5 @@ function editarPedido(idPedido, tipo) {
 }
 
 function mostrarDialog(mensaje, tipo) {
-    const dialog = document.getElementById('warning');
-    const mensajeEl = document.getElementById('mensaje');
-    
-    if (dialog && mensajeEl) {
-        mensajeEl.textContent = mensaje;
-        mensajeEl.className = tipo;
-        dialog.showModal();
-    }
+    window.BookArtNotification.show(mensaje, tipo);
 }

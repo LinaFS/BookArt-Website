@@ -282,6 +282,7 @@
                 </div>
             </div>
         </footer>
+        <script src="../JavaScript/funcionModal.js"></script>
         <script src="../JavaScript/personalizada.js"></script>
     </body>
 </html>

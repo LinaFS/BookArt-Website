@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="../CSS/style.css">
         <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Martian+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <script src="../JavaScript/funcionModal.js"></script>
         <script src="../JavaScript/userMenu.js"></script>
     </head>
 
@@ -311,14 +312,7 @@
 
             // Función auxiliar para mostrar diálogo
             function mostrarDialog(mensaje, tipo = 'info') {
-                const dialog = document.getElementById('warning');
-                const mensajeEl = document.getElementById('mensaje');
-                
-                if (dialog && mensajeEl) {
-                    mensajeEl.textContent = mensaje;
-                    mensajeEl.className = tipo;
-                    dialog.showModal();
-                }
+                window.BookArtNotification.show(mensaje, tipo);
             }
 
             // Modal de mensajes

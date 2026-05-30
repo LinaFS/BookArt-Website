@@ -1,6 +1,12 @@
 <?php
 session_start();
-require("conexionBDD.php");
+require_once __DIR__ . '/conexionBDD.php';
+
+if (!isset($conexion) || !$conexion) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'No se pudo conectar a la base de datos']);
+    exit;
+}
 
 header('Content-Type: application/json');
 
@@ -55,9 +61,19 @@ switch($action) {
 }
 
 function agregarAlCarrito($conexion, $usuarioId) {
-    $tipo = mysqli_real_escape_string($conexion, $_POST['tipo']);
-    $id = mysqli_real_escape_string($conexion, $_POST['id']);
-    
+    $tipo = isset($_POST['tipo']) ? trim($_POST['tipo']) : '';
+    $id = isset($_POST['id']) ? filter_var($_POST['id'], FILTER_VALIDATE_INT) : false;
+
+    if ($id === false || $id <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID de producto inválido']);
+        return;
+    }
+
+    if ($tipo !== 'catalogo' && $tipo !== 'personalizada') {
+        echo json_encode(['success' => false, 'message' => 'Tipo de producto no válido']);
+        return;
+    }
+
     $fecha = date('Y-m-d');
     $hora = date('H:i:s');
     
@@ -150,7 +166,12 @@ function agregarAlCarrito($conexion, $usuarioId) {
 }
 
 function eliminarDelCarrito($conexion, $usuarioId) {
-    $id = mysqli_real_escape_string($conexion, $_POST['id']);
+    $id = isset($_POST['id']) ? filter_var($_POST['id'], FILTER_VALIDATE_INT) : false;
+
+    if ($id === false || $id <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID de pedido inválido']);
+        return;
+    }
 
     // Obtener información del pedido
     $queryInfo = "SELECT idPersonalizada, idTipoPedido FROM pedidos WHERE idPedido = ? AND estatus = 'carrito' AND IdCuenta = ?";

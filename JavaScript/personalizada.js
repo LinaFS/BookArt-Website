@@ -18,14 +18,7 @@ function toggleMenu() {
 
 // Función auxiliar para mostrar diálogo
 function mostrarDialog(mensaje, tipo = 'info') {
-    const dialog = document.getElementById('warning');
-    const mensajeEl = document.getElementById('mensaje');
-    
-    if (dialog && mensajeEl) {
-        mensajeEl.textContent = mensaje;
-        mensajeEl.className = tipo;
-        dialog.showModal();
-    }
+    window.BookArtNotification.show(mensaje, tipo);
 }
 
 // Event listeners de diálogo

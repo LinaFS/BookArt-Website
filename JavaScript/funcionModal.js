@@ -441,18 +441,20 @@ function resetForm() {
     });
 }
 
-console.log('✅ BookArt - Sistema de sesión cargado correctamente')  = document.querySelector('#is form');
-    const formCrear = document.getElementById('cc');
-    const formRecuperar = document.getElementById('reestablecerContra');
-    
-    if (formLogin) formLogin.reset();
-    if (formCrear) formCrear.reset();
-    if (formRecuperar) formRecuperar.reset();
-    
-    // Ocultar todas las etiquetas de error
-    document.querySelectorAll('[class*="etiqueta"]').forEach(etiqueta => {
-        etiqueta.style.visibility = 'hidden';
-    });
+const formLogin = document.querySelector('#is form');
+const formCrear = document.getElementById('cc');
+const formRecuperar = document.getElementById('reestablecerContra');
+const telInput = document.getElementById('tel');
+
+if (formLogin) formLogin.reset();
+if (formCrear) formCrear.reset();
+if (formRecuperar) formRecuperar.reset();
+
+// Ocultar todas las etiquetas de error
+document.querySelectorAll('[class*="etiqueta"]').forEach(etiqueta => {
+    etiqueta.style.visibility = 'hidden';
+});
+
 // Formatear teléfono automáticamente
 if (telInput) {
     telInput.addEventListener('input', function(e) {
@@ -462,24 +464,45 @@ if (telInput) {
     });
 }
 
-// Función para mostrar dialog personalizado
-function mostrarAlerta(mensaje, tipo = 'info') {
-    const dialog = document.getElementById('warning');
-    const mensajeEl = document.getElementById('mensaje');
-    
-    if (dialog && mensajeEl) {
-        mensajeEl.textContent = mensaje;
-        mensajeEl.className = tipo; // 'success', 'error', 'warning', 'info'
-        dialog.showModal();
+// Componente global de notificaciones
+window.BookArtNotification = {
+    show: function(mensaje, tipo = 'info', dialogId = 'warning') {
+        const dialog = document.getElementById(dialogId);
+        const mensajeEl = document.getElementById('mensaje');
+        if (dialog && mensajeEl) {
+            mensajeEl.textContent = mensaje;
+            mensajeEl.className = tipo; // 'success', 'error', 'warning', 'info'
+            dialog.showModal();
+
+            if (tipo === 'success') {
+                setTimeout(() => {
+                    dialog.close();
+                }, 3000);
+            }
+        }
+    },
+    close: function(dialogId = 'warning') {
+        const dialog = document.getElementById(dialogId);
+        if (dialog) {
+            dialog.close();
+        }
     }
-}
+};
+
+window.mostrarDialog = function(mensaje, tipo = 'info', dialogId = 'warning') {
+    window.BookArtNotification.show(mensaje, tipo, dialogId);
+};
+
+window.mostrarAlerta = function(mensaje, tipo = 'info', dialogId = 'warning') {
+    window.BookArtNotification.show(mensaje, tipo, dialogId);
+};
 
 // Event listener para cerrar el dialog
 document.addEventListener('DOMContentLoaded', function() {
     const btnAcept = document.getElementById('btnAcept');
     if (btnAcept) {
         btnAcept.addEventListener('click', function() {
-            document.getElementById('warning').close();
+            window.BookArtNotification.close();
         });
     }
 });

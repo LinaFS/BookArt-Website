@@ -17,6 +17,7 @@
         <link rel="stylesheet" href="../CSS/adminStyle.css">
         <link href="https://fonts.googleapis.com/css2?family=Martian+Mono&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <script src="../JavaScript/funcionModal.js"></script>
         <script src="../JavaScript/logicaAdmin.js"></script>
     </head>
     <body>

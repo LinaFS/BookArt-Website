@@ -38,14 +38,7 @@ document.addEventListener('click', function(e) {
 
 // Función auxiliar para mostrar diálogo personalizado
 function mostrarDialog(mensaje, tipo = 'info') {
-    const dialog = document.getElementById('warning');
-    const mensajeEl = document.getElementById('mensaje');
-    
-    if (dialog && mensajeEl) {
-        mensajeEl.textContent = mensaje;
-        mensajeEl.className = tipo; // 'success', 'error', 'info'
-        dialog.showModal();
-    }
+    window.BookArtNotification.show(mensaje, tipo);
 }
 
 // Event listener para cerrar el diálogo

@@ -1,6 +1,11 @@
 <?php
 session_start();
-include("conexionBDD.php");
+require_once __DIR__ . '/conexionBDD.php';
+
+if (!isset($conexion) || !$conexion) {
+    echo json_encode(['success' => false, 'message' => 'Error de conexión a la base de datos']);
+    exit;
+}
 
 // Verificar que sea administrador
 if (!isset($_SESSION["usuario"])) {
@@ -10,11 +15,19 @@ if (!isset($_SESSION["usuario"])) {
 
 // Verificar permiso de administrador
 $usuario = $_SESSION["usuario"];
-$queryPermiso = "SELECT permiso_id FROM cuenta WHERE correo = '$usuario' OR usuario = '$usuario'";
-$resultPermiso = mysqli_query($conexion, $queryPermiso);
+$queryPermiso = "SELECT permiso_id FROM cuenta WHERE correo = ? OR usuario = ?";
+if ($stmt = mysqli_prepare($conexion, $queryPermiso)) {
+    mysqli_stmt_bind_param($stmt, "ss", $usuario, $usuario);
+    mysqli_stmt_execute($stmt);
+    $resultPermiso = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Error interno']);
+    exit;
+}
 $permisoData = mysqli_fetch_assoc($resultPermiso);
 
-if ($permisoData['permiso_id'] != 1) {
+if (!$permisoData || $permisoData['permiso_id'] != 1) {
     echo json_encode(['success' => false, 'message' => 'No tienes permisos de administrador']);
     exit;
 }
@@ -98,7 +111,7 @@ function listarPedidos($conexion) {
 }
 
 function obtenerDetallePedido($conexion) {
-    $id = mysqli_real_escape_string($conexion, $_GET['id']);
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
     
     $query = "
         SELECT 
@@ -137,10 +150,18 @@ function obtenerDetallePedido($conexion) {
         LEFT JOIN personalizada per ON p.idPersonalizada = per.id_personalizada AND tp.id_tipoPedido = 2
         INNER JOIN cuenta cu ON p.idCuenta = cu.id_cuenta
         INNER JOIN usuario u ON cu.usuario_id = u.id_usuario
-        WHERE p.idPedido = '$id'
+        WHERE p.idPedido = ?
     ";
     
-    $result = mysqli_query($conexion, $query);
+    if ($stmt = mysqli_prepare($conexion, $query)) {
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error interno']);
+        return;
+    }
     
     if($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
@@ -184,25 +205,26 @@ function obtenerDetallePedido($conexion) {
 }
 
 function cambiarEstatus($conexion) {
-    $id = mysqli_real_escape_string($conexion, $_POST['pedidoId']);
-    $nuevoEstatus = mysqli_real_escape_string($conexion, $_POST['estatus']);
-    $mensaje = isset($_POST['mensaje']) ? mysqli_real_escape_string($conexion, $_POST['mensaje']) : '';
-    
-    // Validar estatus
+    $id = isset($_POST['pedidoId']) ? intval($_POST['pedidoId']) : 0;
+    $nuevoEstatus = isset($_POST['estatus']) ? $_POST['estatus'] : '';
+    $mensaje = isset($_POST['mensaje']) ? $_POST['mensaje'] : '';
+
     $estatusValidos = ['pendiente', 'visto', 'aprobado', 'declinado', 'proceso', 'terminado', 'entregado'];
     if(!in_array($nuevoEstatus, $estatusValidos)) {
         echo json_encode(['success' => false, 'message' => 'Estatus no válido']);
         return;
     }
-    
-    // Actualizar en la tabla pedidos CON el mensaje
-    $query = "UPDATE pedidos 
-              SET estatus = '$nuevoEstatus', 
-                  mensaje = '$mensaje'
-              WHERE idPedido = '$id'";
-    
-    $result = mysqli_query($conexion, $query);
-    
+
+    $query = "UPDATE pedidos SET estatus = ?, mensaje = ? WHERE idPedido = ?";
+    if ($stmt = mysqli_prepare($conexion, $query)) {
+        mysqli_stmt_bind_param($stmt, "ssi", $nuevoEstatus, $mensaje, $id);
+        $result = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error interno al actualizar estatus']);
+        return;
+    }
+
     if($result) {
         $estatusTexto = '';
         switch($nuevoEstatus) {
@@ -214,12 +236,12 @@ function cambiarEstatus($conexion) {
             case 'terminado': $estatusTexto = 'Terminado'; break;
             case 'entregado': $estatusTexto = 'Entregado'; break;
         }
-        
+
         $mensajeRespuesta = 'Estatus actualizado a: ' . $estatusTexto;
         if (!empty($mensaje)) {
             $mensajeRespuesta .= ' (Mensaje enviado al cliente)';
         }
-        
+
         echo json_encode([
             'success' => true, 
             'message' => $mensajeRespuesta
@@ -272,47 +294,53 @@ function obtenerEstadisticas($conexion) {
 }
 
 function asignarPrecioPersonalizada($conexion) {
-    $idPedido = mysqli_real_escape_string($conexion, $_POST['pedidoId']);
-    $precio = mysqli_real_escape_string($conexion, $_POST['precio']);
-    
-    // Validar precio
+    $idPedido = isset($_POST['pedidoId']) ? intval($_POST['pedidoId']) : 0;
+    $precio = isset($_POST['precio']) ? $_POST['precio'] : '';
+
     if(!is_numeric($precio) || $precio < 0) {
         echo json_encode(['success' => false, 'message' => 'Precio no válido']);
         return;
     }
-    
-    // Obtener el idPersonalizada del pedido
-    $queryCheck = "SELECT idPersonalizada, idTipoPedido 
-                   FROM pedidos 
-                   WHERE idPedido = '$idPedido'";
-    $resultCheck = mysqli_query($conexion, $queryCheck);
-    
+
+    $queryCheck = "SELECT idPersonalizada, idTipoPedido FROM pedidos WHERE idPedido = ?";
+    if ($stmt = mysqli_prepare($conexion, $queryCheck)) {
+        mysqli_stmt_bind_param($stmt, "i", $idPedido);
+        mysqli_stmt_execute($stmt);
+        $resultCheck = mysqli_stmt_get_result($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error interno']);
+        return;
+    }
+
     if(!$resultCheck || mysqli_num_rows($resultCheck) == 0) {
         echo json_encode(['success' => false, 'message' => 'Pedido no encontrado']);
         return;
     }
-    
+
     $pedido = mysqli_fetch_assoc($resultCheck);
-    
-    // Verificar que sea personalizada
     if($pedido['idTipoPedido'] != 2) {
         echo json_encode(['success' => false, 'message' => 'Solo se puede asignar precio a libretas personalizadas']);
         return;
     }
-    
+
     $idPersonalizada = $pedido['idPersonalizada'];
-    
-    // Actualizar precio en la tabla personalizada
-    $query = "UPDATE personalizada 
-              SET precio = '$precio' 
-              WHERE id_personalizada = '$idPersonalizada'";
-    
-    $result = mysqli_query($conexion, $query);
-    
+    $query = "UPDATE personalizada SET precio = ? WHERE id_personalizada = ?";
+
+    if ($stmt = mysqli_prepare($conexion, $query)) {
+        $precioFloat = floatval($precio);
+        mysqli_stmt_bind_param($stmt, "di", $precioFloat, $idPersonalizada);
+        $result = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error interno al asignar precio']);
+        return;
+    }
+
     if($result) {
         echo json_encode([
             'success' => true, 
-            'message' => 'Precio asignado correctamente: $' . number_format($precio, 2)
+            'message' => 'Precio asignado correctamente: $' . number_format($precioFloat, 2)
         ]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error al asignar precio: ' . mysqli_error($conexion)]);
