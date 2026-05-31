@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Permitir acceso directo a archivos y carpetas que existen
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Excluir carpeta api/ (tiene su propio router)
+RewriteRule ^api/ - [L]
+
+# Todo lo demás va al router principal
+RewriteRule ^(.*)$ index.php [QSA,L]
