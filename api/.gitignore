@@ -1,16 +1,13 @@
 # ── Credenciales ─────────────────────────────────────────────
 .env
 
-# ── API (repo independiente con su propio git) ────────────────
-
 # ── Dependencias ─────────────────────────────────────────────
 /vendor/
 
-# ── Runtime (generado en servidor, nunca en repo) ─────────────
+# ── Runtime ───────────────────────────────────────────────────
 /storage/
-/wwwroot/portadas/
-/wwwroot/catalogo/
-*.htaccess
+*.log
+/logs/
 
 # ── Sistema operativo ─────────────────────────────────────────
 .DS_Store
