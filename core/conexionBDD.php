@@ -1,22 +1,41 @@
 <?php
 require_once __DIR__ . '/env.php';
 
+/**
+ * Singleton PDO para BookArt.
+ * Reemplaza mysqli_* — misma variable $pdo disponible globalmente.
+ *
+ * Uso en cualquier archivo:
+ *   require_once __DIR__ . '/../core/conexionBDD.php';
+ *   // $pdo ya está disponible
+ */
+
 define('DB_HOST',     $_ENV['DB_HOST']);
 define('DB_USER',     $_ENV['DB_USER']);
 define('DB_PASSWORD', $_ENV['DB_PASSWORD']);
 define('DB_NAME',     $_ENV['DB_NAME']);
 
-$conexion = mysqli_init();
-mysqli_options($conexion, MYSQLI_OPT_INT_AND_FLOAT_NATIVE, 1);
+class ConexionBDD {
+    private static ?PDO $instancia = null;
 
-if (!mysqli_real_connect($conexion, DB_HOST, DB_USER, DB_PASSWORD, DB_NAME)) {
-    error_log('MySQL connection error: ' . mysqli_connect_error());
-    http_response_code(500);
-    exit('Error de conexión a la base de datos.');
+    public static function obtener(): PDO {
+        if (self::$instancia === null) {
+            $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
+            try {
+                self::$instancia = new PDO($dsn, DB_USER, DB_PASSWORD, [
+                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES   => false,
+                ]);
+            } catch (PDOException $e) {
+                error_log('BookArt DB Error: ' . $e->getMessage());
+                http_response_code(500);
+                exit('Error de conexión a la base de datos.');
+            }
+        }
+        return self::$instancia;
+    }
 }
 
-if (!mysqli_set_charset($conexion, 'utf8mb4')) {
-    error_log('Error al establecer el conjunto de caracteres: ' . mysqli_error($conexion));
-    http_response_code(500);
-    exit('Error de configuración de la base de datos.');
-}
+// Alias global — todos los archivos usan $pdo directamente
+$pdo = ConexionBDD::obtener();

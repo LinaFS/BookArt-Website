@@ -1,70 +1,70 @@
 <?php
 require_once dirname(__DIR__, 2) . '/core/conexionBDD.php';
-require_once dirname(__DIR__) . '/middleware/auth.php';
+require_once dirname(__DIR__, 2) . '/core/services/CarritoService.php';
+require_once dirname(__DIR__)    . '/middleware/auth.php';
 
 requireUser();
 
-$method   = $_SERVER['REQUEST_METHOD'];
-$usuarioId = obtenerIdCuenta($conexion);
-
-$action = trim($_GET['action'] ?? '');
+$method  = $_SERVER['REQUEST_METHOD'];
+$action  = trim($_GET['action'] ?? '');
+$service = new CarritoService($pdo);           // ← $pdo viene de conexionBDD.php
+$uid     = obtenerIdCuenta();
 
 match (true) {
-    $method === 'GET'                                   => verCarrito($conexion, $usuarioId),
-    $method === 'POST' && $action === 'checkout'        => checkout($conexion, $usuarioId),
-    $method === 'POST' && isset($_POST['opcFinal'])     => crearPersonalizada($conexion, $usuarioId),
-    $method === 'POST'                                  => agregarAlCarrito($conexion, $usuarioId),
-    $method === 'DELETE'                                => eliminarDelCarrito($conexion, $usuarioId),
-    default                                             => response(405, false, 'Método no permitido.')
+    $method === 'GET'  && $action === 'count'    => count($service, $uid),
+    $method === 'GET'                            => items($service, $uid),
+    $method === 'POST' && $action === 'checkout' => checkout($service, $uid),
+    $method === 'POST' && isset($_POST['opcFinal']) => crearPersonalizada($pdo, $service, $uid),
+    $method === 'POST'                           => agregar($service, $uid),
+    $method === 'DELETE'                         => eliminar($service, $uid),
+    default                                      => response(405, false, 'Método no permitido.')
 };
 
-// ── GET: ver carrito + count ─────────────────────────────────────────────────
-function verCarrito($conexion, $usuarioId): void {
-    $action = trim($_GET['action'] ?? '');
+// ── HANDLERS ─────────────────────────────────────────────────────────────────
 
-    if ($action === 'count') {
-        $stmt = mysqli_prepare($conexion,
-            "SELECT COUNT(*) AS total FROM pedidos WHERE IdCuenta = ? AND estatus = 'carrito'");
-        mysqli_stmt_bind_param($stmt, 'i', $usuarioId);
-        mysqli_stmt_execute($stmt);
-        $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
-        mysqli_stmt_close($stmt);
-        response(200, true, 'OK', ['count' => (int)$row['total']]);
-        return;
-    }
-
-    $sql = "SELECT p.idPedido, p.idTipoPedido,
-                CASE WHEN p.idTipoPedido = 1 THEN c.nombre  ELSE 'Libreta Personalizada' END AS nombre,
-                CASE WHEN p.idTipoPedido = 1 THEN c.precio  ELSE COALESCE(per.precio, 0) END AS precio,
-                CASE WHEN p.idTipoPedido = 1 THEN c.img     ELSE per.portada              END AS imagen
-            FROM pedidos p
-            LEFT JOIN catalogo     c   ON p.idCatalogo    = c.id_producto
-            LEFT JOIN personalizada per ON p.idPersonalizada = per.id_personalizada
-            WHERE p.IdCuenta = ? AND p.estatus = 'carrito'";
-
-    $stmt = mysqli_prepare($conexion, $sql);
-    mysqli_stmt_bind_param($stmt, 'i', $usuarioId);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    mysqli_stmt_close($stmt);
-
-    $items = [];
-    while ($row = mysqli_fetch_assoc($result)) $items[] = $row;
+function items(CarritoService $s, int $uid): void {
+    $items = $s->obtenerItems($uid);
     response(200, true, 'OK', ['items' => $items]);
 }
 
-// ── POST: crear libreta personalizada y agregar al carrito ──────────────────
-function crearPersonalizada($conexion, $usuarioId): void {
-    $opcion      = trim($_POST['opcFinal']     ?? '');
-    $tamanio     = trim($_POST['tamaño']       ?? '');
-    $tipoPapel   = trim($_POST['tipoPapel']    ?? '');
-    $color       = trim($_POST['color']        ?? '');
-    $descripcion = trim($_POST['descripcion']  ?? '');
+function count(CarritoService $s, int $uid): void {
+    response(200, true, 'OK', ['count' => $s->contarItems($uid)]);
+}
 
-    if (empty($opcion) || empty($tamanio) || empty($tipoPapel) || empty($color) || empty($descripcion)) {
-        response(422, false, 'Todos los campos de la libreta son obligatorios.'); return;
+function agregar(CarritoService $s, int $uid): void {
+    $tipo = trim($_POST['tipo'] ?? '');
+    $id   = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
+
+    if (!$id || $id <= 0) { response(422, false, 'ID de producto inválido.'); return; }
+
+    $resultado = $s->agregar($uid, $tipo, $id);
+    response($resultado['success'] ? 201 : 409, $resultado['success'], $resultado['message']);
+}
+
+function eliminar(CarritoService $s, int $uid): void {
+    $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
+    if (!$id || $id <= 0) { response(422, false, 'ID inválido.'); return; }
+
+    $resultado = $s->eliminar($uid, $id);
+    response($resultado['success'] ? 200 : 404, $resultado['success'], $resultado['message']);
+}
+
+function checkout(CarritoService $s, int $uid): void {
+    $resultado = $s->checkout($uid);
+    response($resultado['success'] ? 200 : 422, $resultado['success'], $resultado['message']);
+}
+
+function crearPersonalizada(PDO $pdo, CarritoService $s, int $uid): void {
+    // Validar campos obligatorios
+    $campos = ['opcFinal', 'tamaño', 'tipoPapel', 'color', 'descripcion'];
+    $data   = [];
+    foreach ($campos as $campo) {
+        $val = trim($_POST[$campo] ?? '');
+        if (empty($val)) { response(422, false, "El campo '$campo' es obligatorio."); return; }
+        $data[$campo] = $val;
     }
 
+    // Procesar imagen si viene
     $portadaUrl = '';
     if (isset($_FILES['portada']) && $_FILES['portada']['error'] === UPLOAD_ERR_OK) {
         $resultado = procesarPortada($_FILES['portada']);
@@ -72,39 +72,40 @@ function crearPersonalizada($conexion, $usuarioId): void {
         $portadaUrl = $resultado['url'];
     }
 
-    // Insertar en personalizada
-    $stmt = mysqli_prepare($conexion,
+    // Insertar personalizada
+    $stmt = $pdo->prepare(
         "INSERT INTO personalizada (color, descripcion, portada, tam, tipo_encuadernacion, tipo_papel)
-         VALUES (?, ?, ?, ?, ?, ?)");
-    mysqli_stmt_bind_param($stmt, 'ssssss',
-        $color, $descripcion, $portadaUrl, $tamanio, $opcion, $tipoPapel);
-    mysqli_stmt_execute($stmt);
-    $idPersonalizada = mysqli_insert_id($conexion);
-    $ok = $idPersonalizada > 0;
-    mysqli_stmt_close($stmt);
+         VALUES (:color, :desc, :portada, :tam, :enc, :papel)"
+    );
+    $stmt->execute([
+        ':color'   => $data['color'],
+        ':desc'    => $data['descripcion'],
+        ':portada' => $portadaUrl,
+        ':tam'     => $data['tamaño'],
+        ':enc'     => $data['opcFinal'],
+        ':papel'   => $data['tipoPapel'],
+    ]);
+    $idPersonalizada = (int) $pdo->lastInsertId();
 
-    if (!$ok) { response(500, false, 'Error al guardar el diseño.'); return; }
+    if (!$idPersonalizada) { response(500, false, 'Error al guardar el diseño.'); return; }
 
-    // Insertar en pedidos con estatus carrito
-    $fecha = date('Y-m-d');
-    $hora  = date('H:i:s');
-    $stmt  = mysqli_prepare($conexion,
-        "INSERT INTO pedidos (fecha, hora, estatus, idPersonalizada, idTipoPedido, IdCuenta)
-         VALUES (?, ?, 'carrito', ?, 2, ?)");
-    mysqli_stmt_bind_param($stmt, 'ssii', $fecha, $hora, $idPersonalizada, $usuarioId);
-    $ok = mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-
-    if (!$ok) {
-        // Revertir personalizada si falla el pedido
-        $stmt = mysqli_prepare($conexion, "DELETE FROM personalizada WHERE id_personalizada = ?");
-        mysqli_stmt_bind_param($stmt, 'i', $idPersonalizada);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
+    // Agregar al carrito via service (reutiliza lógica de duplicados)
+    $resultado = $s->agregar($uid, 'personalizada', $idPersonalizada);
+    if (!$resultado['success']) {
+        // Revertir si no se pudo agregar
+        $pdo->prepare("DELETE FROM personalizada WHERE id_personalizada = ?")->execute([$idPersonalizada]);
         response(500, false, 'Error al agregar al carrito.'); return;
     }
 
     response(201, true, '¡Diseño creado y agregado al carrito!', ['redirect' => '/carrito']);
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+
+function obtenerIdCuenta(): int {
+    if (!empty($_SESSION['id_cuenta'])) return (int) $_SESSION['id_cuenta'];
+    response(401, false, 'Sesión no válida.');
+    exit;
 }
 
 function procesarPortada(array $file): array {
@@ -113,143 +114,15 @@ function procesarPortada(array $file): array {
 
     $permitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!in_array($file['type'], $permitidos))
-        return ['success' => false, 'message' => 'Formato de imagen no válido (jpg, png, webp).'];
+        return ['success' => false, 'message' => 'Formato no válido (jpg, png, webp).'];
 
-    $ext     = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $nombre  = uniqid('portada_') . '.' . $ext;
-    $carpeta = dirname(__DIR__, 2) . '/wwwroot/portadas/';
+    $ext    = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $nombre = uniqid('portada_') . '.' . $ext;
+    $dir    = dirname(__DIR__, 2) . '/wwwroot/portadas/';
 
-    if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
-
-    if (!move_uploaded_file($file['tmp_name'], $carpeta . $nombre))
+    if (!is_dir($dir)) mkdir($dir, 0755, true);
+    if (!move_uploaded_file($file['tmp_name'], $dir . $nombre))
         return ['success' => false, 'message' => 'Error al guardar la portada.'];
 
     return ['success' => true, 'url' => '/wwwroot/portadas/' . $nombre];
-}
-
-// ── POST: checkout — confirmar pedido ────────────────────────────────────────
-function checkout($conexion, $usuarioId): void {
-    // Verificar que hay items en el carrito
-    $stmt = mysqli_prepare($conexion,
-        "SELECT COUNT(*) AS total FROM pedidos WHERE IdCuenta = ? AND estatus = 'carrito'");
-    mysqli_stmt_bind_param($stmt, 'i', $usuarioId);
-    mysqli_stmt_execute($stmt);
-    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
-    mysqli_stmt_close($stmt);
-
-    if ((int)$row['total'] === 0) {
-        response(422, false, 'Tu carrito está vacío.'); return;
-    }
-
-    // Cambiar estatus de 'carrito' a 'pendiente'
-    $stmt = mysqli_prepare($conexion,
-        "UPDATE pedidos SET estatus = 'pendiente' WHERE IdCuenta = ? AND estatus = 'carrito'");
-    mysqli_stmt_bind_param($stmt, 'i', $usuarioId);
-    $ok = mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-
-    if ($ok) {
-        $_SESSION['flash'] = [
-            'type'    => 'success',
-            'message' => '¡Pedido realizado! Nos pondremos en contacto contigo pronto.'
-        ];
-        response(200, true, '¡Pedido realizado exitosamente!');
-    } else {
-        response(500, false, 'Error al procesar el pedido.');
-    }
-}
-
-// ── POST: agregar al carrito ─────────────────────────────────────────────────
-function agregarAlCarrito($conexion, $usuarioId): void {
-    $tipo = trim($_POST['tipo'] ?? '');
-    $id   = filter_var($_POST['id'] ?? '', FILTER_VALIDATE_INT);
-
-    if (!$id || $id <= 0) { response(422, false, 'ID de producto inválido.'); return; }
-    if (!in_array($tipo, ['catalogo', 'personalizada'])) {
-        response(422, false, 'Tipo de producto no válido.'); return;
-    }
-
-    $idTipo  = $tipo === 'catalogo' ? 1 : 2;
-    $columna = $tipo === 'catalogo' ? 'idCatalogo' : 'idPersonalizada';
-
-    // Verificar duplicado en carrito
-    $check = "SELECT 1 FROM pedidos
-              WHERE IdCuenta = ? AND $columna = ? AND idTipoPedido = ? AND estatus = 'carrito'";
-    $stmt  = mysqli_prepare($conexion, $check);
-    mysqli_stmt_bind_param($stmt, 'iii', $usuarioId, $id, $idTipo);
-    mysqli_stmt_execute($stmt);
-    if (mysqli_num_rows(mysqli_stmt_get_result($stmt)) > 0) {
-        mysqli_stmt_close($stmt);
-        response(409, false, 'Este producto ya está en tu carrito.'); return;
-    }
-    mysqli_stmt_close($stmt);
-
-    $fecha = date('Y-m-d');
-    $hora  = date('H:i:s');
-    $sql   = "INSERT INTO pedidos (fecha, hora, estatus, $columna, idTipoPedido, IdCuenta)
-              VALUES (?, ?, 'carrito', ?, ?, ?)";
-
-    $stmt = mysqli_prepare($conexion, $sql);
-    mysqli_stmt_bind_param($stmt, 'ssiii', $fecha, $hora, $id, $idTipo, $usuarioId);
-    $ok = mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-
-    $ok ? response(201, true, 'Producto agregado al carrito.')
-        : response(500, false, 'Error al agregar al carrito.');
-}
-
-// ── DELETE: quitar del carrito ───────────────────────────────────────────────
-function eliminarDelCarrito($conexion, $usuarioId): void {
-    $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : false;
-    if (!$id || $id <= 0) { response(422, false, 'ID de pedido inválido.'); return; }
-
-    // Verificar que el pedido pertenece al usuario
-    $stmt = mysqli_prepare($conexion,
-        "SELECT idPersonalizada, idTipoPedido FROM pedidos
-         WHERE idPedido = ? AND IdCuenta = ? AND estatus = 'carrito'");
-    mysqli_stmt_bind_param($stmt, 'ii', $id, $usuarioId);
-    mysqli_stmt_execute($stmt);
-    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
-    mysqli_stmt_close($stmt);
-
-    if (!$row) { response(404, false, 'Pedido no encontrado.'); return; }
-
-    $stmt = mysqli_prepare($conexion,
-        "DELETE FROM pedidos WHERE idPedido = ? AND IdCuenta = ? AND estatus = 'carrito'");
-    mysqli_stmt_bind_param($stmt, 'ii', $id, $usuarioId);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-
-    // Si era personalizada, eliminar registro e imagen
-    if ($row['idTipoPedido'] == 2 && $row['idPersonalizada']) {
-        $idPer = $row['idPersonalizada'];
-        $stmt  = mysqli_prepare($conexion,
-            "SELECT portada FROM personalizada WHERE id_personalizada = ?");
-        mysqli_stmt_bind_param($stmt, 'i', $idPer);
-        mysqli_stmt_execute($stmt);
-        $per = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
-        mysqli_stmt_close($stmt);
-
-        if ($per) {
-            $stmt = mysqli_prepare($conexion,
-                "DELETE FROM personalizada WHERE id_personalizada = ?");
-            mysqli_stmt_bind_param($stmt, 'i', $idPer);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_close($stmt);
-            if (!empty($per['portada'])) {
-                $fs = dirname(__DIR__, 2) . $per['portada'];
-                if (file_exists($fs)) unlink($fs);
-            }
-        }
-    }
-
-    response(200, true, 'Producto eliminado del carrito.');
-}
-
-// ── HELPERS ──────────────────────────────────────────────────────────────────
-function obtenerIdCuenta($conexion): int {
-    if (!empty($_SESSION['id_cuenta'])) {
-        return (int)$_SESSION['id_cuenta'];
-    }
-    response(401, false, 'Sesión no válida. Inicia sesión nuevamente.');
 }
