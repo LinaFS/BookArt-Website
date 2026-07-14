@@ -1,5 +1,9 @@
 RewriteEngine On
 
+# /api/* → apiService/index.php (el folder se llama apiService, la URL sigue siendo /api/)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^api(/.*)?$ apiService/index.php [QSA,L]
+
 # Archivos y carpetas reales pasan directo (CSS, JS, imágenes, etc.)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
