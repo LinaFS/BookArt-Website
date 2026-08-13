@@ -3,9 +3,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 require_once dirname(__DIR__, 2) . '/apiService/core/env.php';
-require_once dirname(__DIR__, 2) . '/libs/PHPMailer-master/src/Exception.php';
-require_once dirname(__DIR__, 2) . '/libs/PHPMailer-master/src/PHPMailer.php';
-require_once dirname(__DIR__, 2) . '/libs/PHPMailer-master/src/SMTP.php';
+require_once dirname(__DIR__) . '/libs/PHPMailer-master/src/Exception.php';
+require_once dirname(__DIR__) . '/libs/PHPMailer-master/src/PHPMailer.php';
+require_once dirname(__DIR__) . '/libs/PHPMailer-master/src/SMTP.php';
 
 // Solo aceptar POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
